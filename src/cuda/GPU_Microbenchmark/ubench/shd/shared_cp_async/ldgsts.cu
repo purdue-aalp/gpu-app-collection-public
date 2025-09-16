@@ -37,7 +37,7 @@ __global__ void pipeline_kernel_async(T *global, uint64_t *clock,
 }
 int main(int argc, char **argv)
 {
-    using T = float;
+    using T = double;
     size_t loop = 1024;
     size_t num_blocks = 4;
     size_t threads_per_block = 256;
