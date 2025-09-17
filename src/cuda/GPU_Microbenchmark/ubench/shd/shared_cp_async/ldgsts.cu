@@ -7,26 +7,30 @@
 
 template <typename T>
 __global__ void pipeline_kernel_async(T *global, uint64_t *clock,
-                                      size_t copy_count, size_t loop)
+                                     // size_t copy_count, size_t loop)
+                                    size_t global_mem_size, size_t shmem_size, size_t loop_over_global, int cta_count)
 {
     extern __shared__ char s[];
     T *shared = reinterpret_cast<T *>(s);
+    size_t shmem_elem_count = shmem_size / sizeof(T);
 
-    size_t block_offset = blockIdx.x * blockDim.x * copy_count;
+    size_t cta_cover_global_mem_size = global_mem_size / cta_count;
+    size_t cta_cover_global_mem_elem_count = cta_cover_global_mem_size / sizeof(T);
+    size_t block_offset = cta_cover_global_mem_elem_count * blockIdx.x;
 
     uint64_t clock_start = clock64();
-    for (int j = 0; j < loop; j++)
+    for (int j = 0; j < loop_over_global; j++)
     {
-#pragma unroll(43)
-        for (size_t i = 0; i < copy_count; ++i)
+#pragma unroll(32)
+        for (size_t i = 0; i < cta_cover_global_mem_elem_count; i += blockDim.x)
         {
-            __pipeline_memcpy_async(&shared[blockDim.x * i + threadIdx.x],
-                                    &global[block_offset + blockDim.x * i + threadIdx.x],
+            __pipeline_memcpy_async(&shared[(i + threadIdx.x) % 8192],
+                                    &global[block_offset + i + threadIdx.x],
                                     sizeof(T));
         }
-        __pipeline_commit();
-        __pipeline_wait_prior(0);
     }
+    __pipeline_commit();
+    __pipeline_wait_prior(0);
 
     uint64_t clock_end = clock64();
 
@@ -41,48 +45,30 @@ int main(int argc, char **argv)
     size_t loop = 1024;
     size_t num_blocks = 4;
     size_t threads_per_block = 256;
-    size_t elems_per_block = 0; // optional arg
 
-    if (argc < 4 || argc > 5)
+    if (argc < 4 || argc > 4)
     {
         std::cerr << "Usage: " << argv[0]
-                  << " <loop> <num_blocks> <threads_per_block> [elems_per_block]\n";
+                  << " <loop> <num_blocks> <threads_per_block> \n";
         return 1;
     }
 
     loop = std::atoi(argv[1]);
     num_blocks = std::atoi(argv[2]);
     threads_per_block = std::atoi(argv[3]);
-    if (argc == 5)
-        elems_per_block = std::atoi(argv[4]); // user override
 
     // Get device max shared memory
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, 0);
-    size_t max_shared_mem = prop.sharedMemPerBlockOptin;
-    if (max_shared_mem == 0)
-        max_shared_mem = prop.sharedMemPerBlock;
+    // size_t max_shared_mem = prop.sharedMemPerBlockOptin;
+    // if (max_shared_mem == 0)
+    //     max_shared_mem = prop.sharedMemPerBlock;
+    size_t max_shared_mem = 100 << 10;
 
-    // If not provided, compute elems_per_block from shared mem
-    if (elems_per_block == 0)
-    {
-        elems_per_block = max_shared_mem / sizeof(T);
-    }
+    size_t shared_mem_size = max_shared_mem;
 
-    // Round down to multiple of threads_per_block for even distribution
-    elems_per_block = (elems_per_block / threads_per_block) * threads_per_block;
-
-    // Total elements = per-block capacity × number of blocks
-    size_t total_elems = elems_per_block * num_blocks;
-    size_t bytes = total_elems * sizeof(T);
-
-    size_t copies_per_thread = elems_per_block / threads_per_block;
-
-    std::cout << "Threads per block        = " << threads_per_block << "\n";
-    std::cout << "Max shared mem per block = " << max_shared_mem / 1024 << " KB\n";
-    std::cout << "Elems per block          = " << elems_per_block << "\n";
-    std::cout << "Copies per thread        = " << copies_per_thread << "\n";
-    std::cout << "Total elems              = " << total_elems << "\n";
+    size_t bytes = 40 << 20; // 40 MB
+    size_t total_elems = bytes / sizeof(T);
 
     // Host data
     T *h_data = new T[total_elems];
@@ -104,12 +90,14 @@ int main(int argc, char **argv)
                          cudaFuncAttributeMaxDynamicSharedMemorySize,
                          max_shared_mem);
 
-    // Launch kernel
-    size_t shared_mem_size = elems_per_block * sizeof(T);
-    size_t copy_count = elems_per_block / threads_per_block;
+    std::cout << "Threads per block        = " << threads_per_block << "\n";
+    std::cout << "Max shared mem per block = " << max_shared_mem / 1024 << " KB\n";
+    std::cout << "Total elems              = " << total_elems << "\n";
+    std::cout << "Loop count               = " << loop << "\n";
 
     pipeline_kernel_async<T><<<num_blocks, threads_per_block, shared_mem_size>>>(
-        d_data, d_clock, copy_count, loop);
+       // d_data, d_clock, copy_count, loop);
+       d_data, d_clock, bytes, shared_mem_size, loop, num_blocks);
 
     // Copy and print clock result
     uint64_t h_clock;
