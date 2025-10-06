@@ -66,7 +66,7 @@ struct GMMA_64x8x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -118,7 +118,7 @@ struct GMMA_64x8x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -167,7 +167,7 @@ struct GMMA_64x16x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -219,7 +219,7 @@ struct GMMA_64x16x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -269,7 +269,7 @@ struct GMMA_64x32x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -323,7 +323,7 @@ struct GMMA_64x32x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -376,7 +376,7 @@ struct GMMA_64x64x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -435,7 +435,7 @@ struct GMMA_64x64x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -493,7 +493,7 @@ struct GMMA_64x96x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -557,7 +557,7 @@ struct GMMA_64x96x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -620,7 +620,7 @@ struct GMMA_64x128x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -689,7 +689,7 @@ struct GMMA_64x128x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -759,7 +759,7 @@ struct GMMA_64x192x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -838,7 +838,7 @@ struct GMMA_64x192x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -918,7 +918,7 @@ struct GMMA_64x256x32_F16F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1007,7 +1007,7 @@ struct GMMA_64x256x32_F16F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1078,7 +1078,7 @@ struct GMMA_64x8x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1130,7 +1130,7 @@ struct GMMA_64x8x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1180,7 +1180,7 @@ struct GMMA_64x16x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1234,7 +1234,7 @@ struct GMMA_64x16x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1287,7 +1287,7 @@ struct GMMA_64x32x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1346,7 +1346,7 @@ struct GMMA_64x32x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1406,7 +1406,7 @@ struct GMMA_64x64x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1475,7 +1475,7 @@ struct GMMA_64x64x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1545,7 +1545,7 @@ struct GMMA_64x96x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1624,7 +1624,7 @@ struct GMMA_64x96x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1704,7 +1704,7 @@ struct GMMA_64x128x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1793,7 +1793,7 @@ struct GMMA_64x128x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1887,7 +1887,7 @@ struct GMMA_64x192x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -1996,7 +1996,7 @@ struct GMMA_64x192x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2110,7 +2110,7 @@ struct GMMA_64x256x32_F32F16F16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2239,7 +2239,7 @@ struct GMMA_64x256x32_F32F16F16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2334,7 +2334,7 @@ struct GMMA_64x8x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2386,7 +2386,7 @@ struct GMMA_64x8x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2436,7 +2436,7 @@ struct GMMA_64x16x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2490,7 +2490,7 @@ struct GMMA_64x16x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2543,7 +2543,7 @@ struct GMMA_64x32x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2602,7 +2602,7 @@ struct GMMA_64x32x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2662,7 +2662,7 @@ struct GMMA_64x64x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2731,7 +2731,7 @@ struct GMMA_64x64x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2801,7 +2801,7 @@ struct GMMA_64x96x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2880,7 +2880,7 @@ struct GMMA_64x96x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -2960,7 +2960,7 @@ struct GMMA_64x128x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3049,7 +3049,7 @@ struct GMMA_64x128x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3143,7 +3143,7 @@ struct GMMA_64x192x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3252,7 +3252,7 @@ struct GMMA_64x192x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3366,7 +3366,7 @@ struct GMMA_64x256x32_F32BF16BF16_SS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3495,7 +3495,7 @@ struct GMMA_64x256x32_F32BF16BF16_RS
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3588,7 +3588,7 @@ struct GMMA_64x8x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3635,7 +3635,7 @@ struct GMMA_64x8x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3683,7 +3683,7 @@ struct GMMA_64x16x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3732,7 +3732,7 @@ struct GMMA_64x16x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3783,7 +3783,7 @@ struct GMMA_64x32x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3837,7 +3837,7 @@ struct GMMA_64x32x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3895,7 +3895,7 @@ struct GMMA_64x64x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -3959,7 +3959,7 @@ struct GMMA_64x64x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4027,7 +4027,7 @@ struct GMMA_64x96x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4101,7 +4101,7 @@ struct GMMA_64x96x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4179,7 +4179,7 @@ struct GMMA_64x128x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4263,7 +4263,7 @@ struct GMMA_64x128x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4355,7 +4355,7 @@ struct GMMA_64x192x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4459,7 +4459,7 @@ struct GMMA_64x192x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4571,7 +4571,7 @@ struct GMMA_64x256x16_F32TF32TF32_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4695,7 +4695,7 @@ struct GMMA_64x256x16_F32TF32TF32_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4786,7 +4786,7 @@ struct GMMA_64x8x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4831,7 +4831,7 @@ struct GMMA_64x8x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4877,7 +4877,7 @@ struct GMMA_64x16x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4924,7 +4924,7 @@ struct GMMA_64x16x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -4973,7 +4973,7 @@ struct GMMA_64x32x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5025,7 +5025,7 @@ struct GMMA_64x32x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5081,7 +5081,7 @@ struct GMMA_64x64x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5143,7 +5143,7 @@ struct GMMA_64x64x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5209,7 +5209,7 @@ struct GMMA_64x96x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5281,7 +5281,7 @@ struct GMMA_64x96x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5357,7 +5357,7 @@ struct GMMA_64x128x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5439,7 +5439,7 @@ struct GMMA_64x128x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5529,7 +5529,7 @@ struct GMMA_64x192x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5631,7 +5631,7 @@ struct GMMA_64x192x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5741,7 +5741,7 @@ struct GMMA_64x256x64_S32S8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5863,7 +5863,7 @@ struct GMMA_64x256x64_S32S8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5954,7 +5954,7 @@ struct GMMA_64x8x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -5999,7 +5999,7 @@ struct GMMA_64x8x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6045,7 +6045,7 @@ struct GMMA_64x16x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6092,7 +6092,7 @@ struct GMMA_64x16x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6141,7 +6141,7 @@ struct GMMA_64x32x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6193,7 +6193,7 @@ struct GMMA_64x32x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6249,7 +6249,7 @@ struct GMMA_64x64x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6311,7 +6311,7 @@ struct GMMA_64x64x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6377,7 +6377,7 @@ struct GMMA_64x96x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6449,7 +6449,7 @@ struct GMMA_64x96x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6525,7 +6525,7 @@ struct GMMA_64x128x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6607,7 +6607,7 @@ struct GMMA_64x128x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6697,7 +6697,7 @@ struct GMMA_64x192x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6799,7 +6799,7 @@ struct GMMA_64x192x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -6909,7 +6909,7 @@ struct GMMA_64x256x64_S32S8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7031,7 +7031,7 @@ struct GMMA_64x256x64_S32S8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7122,7 +7122,7 @@ struct GMMA_64x8x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7167,7 +7167,7 @@ struct GMMA_64x8x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7213,7 +7213,7 @@ struct GMMA_64x16x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7260,7 +7260,7 @@ struct GMMA_64x16x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7309,7 +7309,7 @@ struct GMMA_64x32x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7361,7 +7361,7 @@ struct GMMA_64x32x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7417,7 +7417,7 @@ struct GMMA_64x64x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7479,7 +7479,7 @@ struct GMMA_64x64x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7545,7 +7545,7 @@ struct GMMA_64x96x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7617,7 +7617,7 @@ struct GMMA_64x96x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7693,7 +7693,7 @@ struct GMMA_64x128x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7775,7 +7775,7 @@ struct GMMA_64x128x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7865,7 +7865,7 @@ struct GMMA_64x192x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -7967,7 +7967,7 @@ struct GMMA_64x192x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8077,7 +8077,7 @@ struct GMMA_64x256x64_S32S8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8199,7 +8199,7 @@ struct GMMA_64x256x64_S32S8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8290,7 +8290,7 @@ struct GMMA_64x8x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8335,7 +8335,7 @@ struct GMMA_64x8x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8381,7 +8381,7 @@ struct GMMA_64x16x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8428,7 +8428,7 @@ struct GMMA_64x16x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8477,7 +8477,7 @@ struct GMMA_64x32x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8529,7 +8529,7 @@ struct GMMA_64x32x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8585,7 +8585,7 @@ struct GMMA_64x64x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8647,7 +8647,7 @@ struct GMMA_64x64x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8713,7 +8713,7 @@ struct GMMA_64x96x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8785,7 +8785,7 @@ struct GMMA_64x96x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8861,7 +8861,7 @@ struct GMMA_64x128x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -8943,7 +8943,7 @@ struct GMMA_64x128x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9033,7 +9033,7 @@ struct GMMA_64x192x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9135,7 +9135,7 @@ struct GMMA_64x192x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9245,7 +9245,7 @@ struct GMMA_64x256x64_S32S8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9367,7 +9367,7 @@ struct GMMA_64x256x64_S32S8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9458,7 +9458,7 @@ struct GMMA_64x8x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9503,7 +9503,7 @@ struct GMMA_64x8x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9549,7 +9549,7 @@ struct GMMA_64x16x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9596,7 +9596,7 @@ struct GMMA_64x16x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9645,7 +9645,7 @@ struct GMMA_64x32x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9697,7 +9697,7 @@ struct GMMA_64x32x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9753,7 +9753,7 @@ struct GMMA_64x64x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9815,7 +9815,7 @@ struct GMMA_64x64x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9881,7 +9881,7 @@ struct GMMA_64x96x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -9953,7 +9953,7 @@ struct GMMA_64x96x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10029,7 +10029,7 @@ struct GMMA_64x128x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10111,7 +10111,7 @@ struct GMMA_64x128x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10201,7 +10201,7 @@ struct GMMA_64x192x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10303,7 +10303,7 @@ struct GMMA_64x192x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10413,7 +10413,7 @@ struct GMMA_64x256x64_S32U8S8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10535,7 +10535,7 @@ struct GMMA_64x256x64_S32U8S8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10626,7 +10626,7 @@ struct GMMA_64x8x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10671,7 +10671,7 @@ struct GMMA_64x8x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10717,7 +10717,7 @@ struct GMMA_64x16x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10764,7 +10764,7 @@ struct GMMA_64x16x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10813,7 +10813,7 @@ struct GMMA_64x32x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10865,7 +10865,7 @@ struct GMMA_64x32x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10921,7 +10921,7 @@ struct GMMA_64x64x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -10983,7 +10983,7 @@ struct GMMA_64x64x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11049,7 +11049,7 @@ struct GMMA_64x96x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11121,7 +11121,7 @@ struct GMMA_64x96x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11197,7 +11197,7 @@ struct GMMA_64x128x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11279,7 +11279,7 @@ struct GMMA_64x128x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11369,7 +11369,7 @@ struct GMMA_64x192x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11471,7 +11471,7 @@ struct GMMA_64x192x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11581,7 +11581,7 @@ struct GMMA_64x256x64_S32U8S8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11703,7 +11703,7 @@ struct GMMA_64x256x64_S32U8S8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11794,7 +11794,7 @@ struct GMMA_64x8x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11839,7 +11839,7 @@ struct GMMA_64x8x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11885,7 +11885,7 @@ struct GMMA_64x16x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11932,7 +11932,7 @@ struct GMMA_64x16x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -11981,7 +11981,7 @@ struct GMMA_64x32x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12033,7 +12033,7 @@ struct GMMA_64x32x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12089,7 +12089,7 @@ struct GMMA_64x64x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12151,7 +12151,7 @@ struct GMMA_64x64x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12217,7 +12217,7 @@ struct GMMA_64x96x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12289,7 +12289,7 @@ struct GMMA_64x96x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12365,7 +12365,7 @@ struct GMMA_64x128x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12447,7 +12447,7 @@ struct GMMA_64x128x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12537,7 +12537,7 @@ struct GMMA_64x192x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12639,7 +12639,7 @@ struct GMMA_64x192x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12749,7 +12749,7 @@ struct GMMA_64x256x64_S32U8U8_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12871,7 +12871,7 @@ struct GMMA_64x256x64_S32U8U8_SS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -12962,7 +12962,7 @@ struct GMMA_64x8x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13007,7 +13007,7 @@ struct GMMA_64x8x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13053,7 +13053,7 @@ struct GMMA_64x16x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13100,7 +13100,7 @@ struct GMMA_64x16x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13149,7 +13149,7 @@ struct GMMA_64x32x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13201,7 +13201,7 @@ struct GMMA_64x32x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13257,7 +13257,7 @@ struct GMMA_64x64x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13319,7 +13319,7 @@ struct GMMA_64x64x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13385,7 +13385,7 @@ struct GMMA_64x96x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13457,7 +13457,7 @@ struct GMMA_64x96x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13533,7 +13533,7 @@ struct GMMA_64x128x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13615,7 +13615,7 @@ struct GMMA_64x128x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13705,7 +13705,7 @@ struct GMMA_64x192x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13807,7 +13807,7 @@ struct GMMA_64x192x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -13917,7 +13917,7 @@ struct GMMA_64x256x64_S32U8U8_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14039,7 +14039,7 @@ struct GMMA_64x256x64_S32U8U8_RS_TN_SATURATE
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14132,7 +14132,7 @@ struct GMMA_64x8x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14179,7 +14179,7 @@ struct GMMA_64x8x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14226,7 +14226,7 @@ struct GMMA_64x8x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14273,7 +14273,7 @@ struct GMMA_64x8x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14320,7 +14320,7 @@ struct GMMA_64x16x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14367,7 +14367,7 @@ struct GMMA_64x16x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14415,7 +14415,7 @@ struct GMMA_64x16x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14464,7 +14464,7 @@ struct GMMA_64x16x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14513,7 +14513,7 @@ struct GMMA_64x32x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14562,7 +14562,7 @@ struct GMMA_64x32x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14613,7 +14613,7 @@ struct GMMA_64x32x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14667,7 +14667,7 @@ struct GMMA_64x32x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14721,7 +14721,7 @@ struct GMMA_64x64x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14775,7 +14775,7 @@ struct GMMA_64x64x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14833,7 +14833,7 @@ struct GMMA_64x64x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14897,7 +14897,7 @@ struct GMMA_64x64x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -14959,7 +14959,7 @@ struct GMMA_64x96x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15018,7 +15018,7 @@ struct GMMA_64x96x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15083,7 +15083,7 @@ struct GMMA_64x96x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15157,7 +15157,7 @@ struct GMMA_64x96x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15227,7 +15227,7 @@ struct GMMA_64x128x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15291,7 +15291,7 @@ struct GMMA_64x128x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15363,7 +15363,7 @@ struct GMMA_64x128x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15447,7 +15447,7 @@ struct GMMA_64x128x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15527,7 +15527,7 @@ struct GMMA_64x192x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15601,7 +15601,7 @@ struct GMMA_64x192x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15687,7 +15687,7 @@ struct GMMA_64x192x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15791,7 +15791,7 @@ struct GMMA_64x192x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15887,7 +15887,7 @@ struct GMMA_64x256x64_F16E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -15971,7 +15971,7 @@ struct GMMA_64x256x64_F16E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16071,7 +16071,7 @@ struct GMMA_64x256x64_F32E4M3E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16195,7 +16195,7 @@ struct GMMA_64x256x64_F32E4M3E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16288,7 +16288,7 @@ struct GMMA_64x8x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16335,7 +16335,7 @@ struct GMMA_64x8x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16382,7 +16382,7 @@ struct GMMA_64x8x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16429,7 +16429,7 @@ struct GMMA_64x8x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16476,7 +16476,7 @@ struct GMMA_64x16x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16523,7 +16523,7 @@ struct GMMA_64x16x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16571,7 +16571,7 @@ struct GMMA_64x16x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16620,7 +16620,7 @@ struct GMMA_64x16x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16669,7 +16669,7 @@ struct GMMA_64x32x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16718,7 +16718,7 @@ struct GMMA_64x32x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16769,7 +16769,7 @@ struct GMMA_64x32x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16823,7 +16823,7 @@ struct GMMA_64x32x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16877,7 +16877,7 @@ struct GMMA_64x64x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16931,7 +16931,7 @@ struct GMMA_64x64x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -16989,7 +16989,7 @@ struct GMMA_64x64x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17053,7 +17053,7 @@ struct GMMA_64x64x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17115,7 +17115,7 @@ struct GMMA_64x96x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17174,7 +17174,7 @@ struct GMMA_64x96x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17239,7 +17239,7 @@ struct GMMA_64x96x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17313,7 +17313,7 @@ struct GMMA_64x96x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17383,7 +17383,7 @@ struct GMMA_64x128x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17447,7 +17447,7 @@ struct GMMA_64x128x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17519,7 +17519,7 @@ struct GMMA_64x128x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17603,7 +17603,7 @@ struct GMMA_64x128x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17683,7 +17683,7 @@ struct GMMA_64x192x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17757,7 +17757,7 @@ struct GMMA_64x192x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17843,7 +17843,7 @@ struct GMMA_64x192x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -17947,7 +17947,7 @@ struct GMMA_64x192x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18043,7 +18043,7 @@ struct GMMA_64x256x64_F16E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18127,7 +18127,7 @@ struct GMMA_64x256x64_F16E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18227,7 +18227,7 @@ struct GMMA_64x256x64_F32E4M3E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18351,7 +18351,7 @@ struct GMMA_64x256x64_F32E4M3E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18444,7 +18444,7 @@ struct GMMA_64x8x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18491,7 +18491,7 @@ struct GMMA_64x8x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18538,7 +18538,7 @@ struct GMMA_64x8x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18585,7 +18585,7 @@ struct GMMA_64x8x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18632,7 +18632,7 @@ struct GMMA_64x16x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18679,7 +18679,7 @@ struct GMMA_64x16x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18727,7 +18727,7 @@ struct GMMA_64x16x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18776,7 +18776,7 @@ struct GMMA_64x16x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18825,7 +18825,7 @@ struct GMMA_64x32x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18874,7 +18874,7 @@ struct GMMA_64x32x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18925,7 +18925,7 @@ struct GMMA_64x32x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -18979,7 +18979,7 @@ struct GMMA_64x32x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19033,7 +19033,7 @@ struct GMMA_64x64x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19087,7 +19087,7 @@ struct GMMA_64x64x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19145,7 +19145,7 @@ struct GMMA_64x64x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19209,7 +19209,7 @@ struct GMMA_64x64x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19271,7 +19271,7 @@ struct GMMA_64x96x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19330,7 +19330,7 @@ struct GMMA_64x96x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19395,7 +19395,7 @@ struct GMMA_64x96x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19469,7 +19469,7 @@ struct GMMA_64x96x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19539,7 +19539,7 @@ struct GMMA_64x128x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19603,7 +19603,7 @@ struct GMMA_64x128x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19675,7 +19675,7 @@ struct GMMA_64x128x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19759,7 +19759,7 @@ struct GMMA_64x128x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19839,7 +19839,7 @@ struct GMMA_64x192x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19913,7 +19913,7 @@ struct GMMA_64x192x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -19999,7 +19999,7 @@ struct GMMA_64x192x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20103,7 +20103,7 @@ struct GMMA_64x192x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20199,7 +20199,7 @@ struct GMMA_64x256x64_F16E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20283,7 +20283,7 @@ struct GMMA_64x256x64_F16E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20383,7 +20383,7 @@ struct GMMA_64x256x64_F32E5M2E4M3_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20507,7 +20507,7 @@ struct GMMA_64x256x64_F32E5M2E4M3_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20600,7 +20600,7 @@ struct GMMA_64x8x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20647,7 +20647,7 @@ struct GMMA_64x8x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20694,7 +20694,7 @@ struct GMMA_64x8x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20741,7 +20741,7 @@ struct GMMA_64x8x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20788,7 +20788,7 @@ struct GMMA_64x16x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20835,7 +20835,7 @@ struct GMMA_64x16x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20883,7 +20883,7 @@ struct GMMA_64x16x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20932,7 +20932,7 @@ struct GMMA_64x16x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -20981,7 +20981,7 @@ struct GMMA_64x32x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21030,7 +21030,7 @@ struct GMMA_64x32x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21081,7 +21081,7 @@ struct GMMA_64x32x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21135,7 +21135,7 @@ struct GMMA_64x32x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21189,7 +21189,7 @@ struct GMMA_64x64x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21243,7 +21243,7 @@ struct GMMA_64x64x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21301,7 +21301,7 @@ struct GMMA_64x64x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21365,7 +21365,7 @@ struct GMMA_64x64x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21427,7 +21427,7 @@ struct GMMA_64x96x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21486,7 +21486,7 @@ struct GMMA_64x96x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21551,7 +21551,7 @@ struct GMMA_64x96x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21625,7 +21625,7 @@ struct GMMA_64x96x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21695,7 +21695,7 @@ struct GMMA_64x128x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21759,7 +21759,7 @@ struct GMMA_64x128x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21831,7 +21831,7 @@ struct GMMA_64x128x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21915,7 +21915,7 @@ struct GMMA_64x128x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -21995,7 +21995,7 @@ struct GMMA_64x192x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22069,7 +22069,7 @@ struct GMMA_64x192x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22155,7 +22155,7 @@ struct GMMA_64x192x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22259,7 +22259,7 @@ struct GMMA_64x192x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22355,7 +22355,7 @@ struct GMMA_64x256x64_F16E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22439,7 +22439,7 @@ struct GMMA_64x256x64_F16E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22539,7 +22539,7 @@ struct GMMA_64x256x64_F32E5M2E5M2_SS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_smem_smem(__LINE__, desc_a, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
@@ -22663,7 +22663,7 @@ struct GMMA_64x256x64_F32E5M2E5M2_RS_TN
       GMMA::ScaleOut const scale_D = GMMA::ScaleOut::One)
   {
 #if defined(CUTE_ARCH_MMA_SM90A_ENABLED)
-    cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
+    // cutlass::arch::synclog_emit_wgmma_reg_smem(__LINE__, desc_b);
     asm volatile(
     "{\n"
       ".reg .pred p;\n"
