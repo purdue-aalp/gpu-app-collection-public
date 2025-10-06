@@ -1,0 +1,16 @@
+# Compiled binaries
+wgmma_sm90
+wgmma_tma_sm90
+
+# Object files
+*.o
+*.obj
+
+# CUDA compiled files
+*.cubin
+*.fatbin
+*.ptx
+
+# Build artifacts
+*.d
+*.dSYM/
