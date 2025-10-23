@@ -35,7 +35,7 @@ struct SharedStorage_Bandwidth
 };
 
 // CUTLASS CuTE-based tensor bandwidth kernel using tcgen05.mma for Blackwell (SM100)
-template <class TA, class TB, class TC, class TiledMma, class SmemLayoutA, class SmemLayoutB>
+template <class TA, class TB, class TC, class TiledMma, class SmemLayoutA, class SmemLayoutB, int Row=64, int Col=256>
 __global__ void tensor_bandwidth(uint64_t *startClk, uint64_t *stopClk,
                                  TA const* a, TB const* b, TC *res,
                                  TiledMma tiled_mma,
@@ -76,7 +76,7 @@ __global__ void tensor_bandwidth(uint64_t *startClk, uint64_t *stopClk,
   // TMEM Allocation
   // On SM100 architecture, accumulators are stored exclusively in tensor memory (TMEM).
   // Create a dummy gmem tensor for C (just for shape)
-  auto gC = make_tensor(make_gmem_ptr(res), make_shape(Int<64>{}, Int<256>{}), make_stride(Int<256>{}, Int<1>{}));
+  auto gC = make_tensor(make_gmem_ptr(res), make_shape(Int<Row>{}, Int<Col>{}), make_stride(Int<Col>{}, Int<1>{}));
   auto tCgC = cta_mma.partition_C(gC);
   auto tCtAcc = cta_mma.make_fragment_C(tCgC);
 
@@ -155,14 +155,14 @@ __global__ void tensor_bandwidth(uint64_t *startClk, uint64_t *stopClk,
   }
 }
 
-template <class T, class R> float tensor_bw() {
+template <class T, class R, int Row=64, int Col=256> float tensor_bw() {
   // Create TiledMMA using CUTLASS CuTE tcgen05.mma for Blackwell (SM100)
   // Using F16BF16 with 128x256x16 tile size (matching 01_mma_sm100.cu)
   using TiledMma = decltype(make_tiled_mma(SM100_MMA_F16BF16_SS<T, T, R,
-                                                                 64, 256,
+                                                                 Row, Col,
                                                                  UMMA::Major::K, UMMA::Major::K>{}));
   TiledMma tiled_mma = make_tiled_mma(SM100_MMA_F16BF16_SS<T, T, R,
-                                                            64, 256,
+                                                            Row, Col,
                                                             UMMA::Major::K, UMMA::Major::K>{});
 
   // using TiledMma = decltype(make_tiled_mma(SM100_MMA_F8F6F4_SS{}));
@@ -171,7 +171,7 @@ template <class T, class R> float tensor_bw() {
   // Define MMA tiler sizes (static) - following 01_mma_sm100.cu pattern
   auto bM = tile_size<0>(tiled_mma);             // MMA Tile M = 128
   auto bN = tile_size<1>(tiled_mma);             // MMA Tile N = 256
-  auto bK = tile_size<2>(tiled_mma) * Int<4>{}; // MMA Tile K = 16 * 4 = 64 (need at least 4 for swizzle layout)
+  auto bK = tile_size<2>(tiled_mma) * Int<8>{}; // MMA Tile K = 16 * 4 = 64 (need at least 4 for swizzle layout)
   auto mma_tiler = make_shape(bM, bN, bK);       // (128, 256, 64)
 
   // Determine the SMEM layouts using partition_shape and tile_to_mma_shape
@@ -233,7 +233,7 @@ template <class T, class R> float tensor_bw() {
   int smem_size = sizeof(SharedStorage_Bandwidth<T, T, decltype(sA_layout), decltype(sB_layout)>);
 
   // Set shared memory configuration
-  auto* kernel_ptr = &tensor_bandwidth<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout)>;
+  auto* kernel_ptr = &tensor_bandwidth<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout), Row, Col>;
   gpuErrchk(cudaFuncSetAttribute(kernel_ptr,
                                   cudaFuncAttributeMaxDynamicSharedMemorySize,
                                   smem_size));
