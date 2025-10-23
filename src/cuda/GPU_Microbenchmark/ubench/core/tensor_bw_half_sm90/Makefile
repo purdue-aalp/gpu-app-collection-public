@@ -1,12 +1,12 @@
-# Standalone Makefile for CUTLASS CuTE tcgen05.mma Tensor Latency Benchmark (SM100)
+# Standalone Makefile for CUTLASS CuTE WGMMA Tensor Latency Benchmark
 # Does not use common.mk to avoid environment variable conflicts
 
 # Compiler
-NVCC := /usr/local/cuda-12.8/bin/nvcc
+NVCC := nvcc
 
 # Source and executable
-SRC := tensor_lat_half.cu
-EXE := tensor_lat_half
+SRC := tensor_bw_half_sm90.cu
+EXE := tensor_bw_half_sm90
 
 # Output directory
 BIN_DIR := ../../../bin
@@ -17,18 +17,16 @@ CUTLASS_INCLUDE := -I$(GPU_APP_ROOT)/include
 COMMON_INCLUDE := -I$(GPU_APP_ROOT)/include/cutlass_common
 TOOLS_UTIL_INCLUDE := -I$(GPU_APP_ROOT)/include/tools_util_include
 
-# Architecture flags - CUTLASS CuTE tcgen05.mma requires SM100a (Blackwell)
-ARCH_FLAGS := -gencode=arch=compute_100a,code=\"sm_100a,compute_100a\"
+# Architecture flags - CUTLASS CuTE WGMMA requires SM90a
+ARCH_FLAGS := -gencode=arch=compute_90a,code=\"sm_90a,compute_90a\"
 
-# CUTLASS/CuTE compiler flags for SM100
+# CUTLASS/CuTE compiler flags
 CUTLASS_FLAGS := -std=c++17 \
                  --expt-relaxed-constexpr \
                  -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1 \
-                 -DCUTLASS_ARCH_MMA_SM100_SUPPORTED \
-				 -DCUTLASS_ARCH_MMA_SM100A_ENABLED \
-                 -DCUTLASS_DISABLE_SYNCLOG \
-                 -DTUNER \
-                 -lineinfo
+                 -DCUTLASS_ARCH_MMA_SM90_SUPPORTED \
+				 -DCUTLASS_ARCH_MMA_SM90A_ENABLED \
+                 -DTUNER
 
 # Combine all flags
 NVCC_FLAGS := $(ARCH_FLAGS) $(CUTLASS_FLAGS) $(CUTLASS_INCLUDE) $(COMMON_INCLUDE) $(TOOLS_UTIL_INCLUDE)

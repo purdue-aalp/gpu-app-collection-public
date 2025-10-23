@@ -1,4 +1,4 @@
-#include "tensor_lat_half.h"
+#include "tensor_bw_half_sm90.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,10 +15,10 @@ int main(int argc, char *argv[])
 
 #if defined(CUTLASS_ARCH_MMA_SM90_SUPPORTED)
   std::cout << "FP16 operand, FP32 accumulate (using CUTLASS CuTE WGMMA):\n";
-  tensor_lat<cute::half_t, float>();
+  tensor_bw<cute::half_t, float>();
 
   std::cout << "\nFP16 operand, FP16 accumulate (using CUTLASS CuTE WGMMA):\n";
-  tensor_lat<cute::half_t, cute::half_t>();
+  tensor_bw<cute::half_t, cute::half_t>();
 #else
   std::cout << "CUTLASS_ARCH_MMA_SM90_SUPPORTED is not defined. Please compile with SM90+ support." << std::endl;
 #endif

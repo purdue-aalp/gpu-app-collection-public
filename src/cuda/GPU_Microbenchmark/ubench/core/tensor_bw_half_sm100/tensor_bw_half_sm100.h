@@ -1,5 +1,5 @@
-#ifndef LAT_TENSOR_DEF_H
-#define LAT_TENSOR_DEF_H
+#ifndef BW_TENSOR_SM100_DEF_H
+#define BW_TENSOR_SM100_DEF_H
 
 #include <algorithm>
 #include <cuda.h>
@@ -22,7 +22,7 @@ using namespace cute;
 
 // Shared memory structure for CUTLASS CuTE tcgen05.mma on SM100
 template <class ElementA, class ElementB, class SmemLayoutA, class SmemLayoutB>
-struct SharedStorage_Latency
+struct SharedStorage_Bandwidth
 {
   alignas(128) cute::ArrayEngine<ElementA, cosize_v<SmemLayoutA>> A;
   alignas(128) cute::ArrayEngine<ElementB, cosize_v<SmemLayoutB>> B;
@@ -34,17 +34,18 @@ struct SharedStorage_Latency
   CUTE_DEVICE constexpr auto tensor_sB() { return make_tensor(make_smem_ptr(B.begin()), SmemLayoutB{}); }
 };
 
-// CUTLASS CuTE-based tensor latency kernel using tcgen05.mma for Blackwell (SM100)
+// CUTLASS CuTE-based tensor bandwidth kernel using tcgen05.mma for Blackwell (SM100)
 template <class TA, class TB, class TC, class TiledMma, class SmemLayoutA, class SmemLayoutB>
-__global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
-                               TA const* a, TB const* b, TC *res,
-                               TiledMma tiled_mma,
-                               SmemLayoutA sA_layout, SmemLayoutB sB_layout) {
+__global__ void tensor_bandwidth(uint64_t *startClk, uint64_t *stopClk,
+                                 TA const* a, TB const* b, TC *res,
+                                 TiledMma tiled_mma,
+                                 SmemLayoutA sA_layout, SmemLayoutB sB_layout) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
+  int tbid = blockIdx.x;
 
   // Shared memory for tcgen05.mma operands
   extern __shared__ char shared_memory[];
-  using SharedStorage = SharedStorage_Latency<TA, TB, SmemLayoutA, SmemLayoutB>;
+  using SharedStorage = SharedStorage_Bandwidth<TA, TB, SmemLayoutA, SmemLayoutB>;
   SharedStorage& smem = *reinterpret_cast<SharedStorage*>(shared_memory);
 
   // Create shared memory tensors
@@ -75,7 +76,7 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
   // TMEM Allocation
   // On SM100 architecture, accumulators are stored exclusively in tensor memory (TMEM).
   // Create a dummy gmem tensor for C (just for shape)
-  auto gC = make_tensor(make_gmem_ptr(res), make_shape(Int<128>{}, Int<192>{}), make_stride(Int<192>{}, Int<1>{}));
+  auto gC = make_tensor(make_gmem_ptr(res), make_shape(Int<64>{}, Int<256>{}), make_stride(Int<256>{}, Int<1>{}));
   auto tCgC = cta_mma.partition_C(gC);
   auto tCtAcc = cta_mma.make_fragment_C(tCgC);
 
@@ -111,7 +112,7 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
 
   // tcgen05.mma instructions require single-warp execution
   if (elect_one_warp) {
-    // Measure tcgen05.mma latency through repeated operations
+    // Measure tcgen05.mma bandwidth through repeated operations
     for (int j = 0; j < REPEAT_ITERS; ++j) {
       // This line spawns 4 128x256x16 MMA ops via cute/algorithm/gemm.hpp:298
       gemm(tiled_mma, tCrA, tCrB, tCtAcc);
@@ -136,15 +137,17 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
   uint64_t stop = 0;
   asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop)::"memory");
 
-  // Simple write to prevent optimization - we don't actually need to load from TMEM for latency measurement
+  // Simple write to prevent optimization - we don't actually need to load from TMEM for bandwidth measurement
   if (threadIdx.x == 0) {
     res[0] = (TC)1.0f;
   }
 
   // write time and data back to memory
-  startClk[gid] = start;
-  stopClk[gid] = stop;
-
+  if(threadIdx.x == 0){
+    startClk[tbid] = start;
+    stopClk[tbid] = stop;
+  }
+  
   // Release and deallocate TMEM
   if (elect_one_warp) {
     tmem_allocator.release_allocation_lock();
@@ -152,14 +155,14 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
   }
 }
 
-template <class T, class R> float tensor_lat() {
+template <class T, class R> float tensor_bw() {
   // Create TiledMMA using CUTLASS CuTE tcgen05.mma for Blackwell (SM100)
   // Using F16BF16 with 128x256x16 tile size (matching 01_mma_sm100.cu)
   using TiledMma = decltype(make_tiled_mma(SM100_MMA_F16BF16_SS<T, T, R,
-                                                                 128, 192,
+                                                                 64, 256,
                                                                  UMMA::Major::K, UMMA::Major::K>{}));
   TiledMma tiled_mma = make_tiled_mma(SM100_MMA_F16BF16_SS<T, T, R,
-                                                            128, 192,
+                                                            64, 256,
                                                             UMMA::Major::K, UMMA::Major::K>{});
 
   // using TiledMma = decltype(make_tiled_mma(SM100_MMA_F8F6F4_SS{}));
@@ -193,7 +196,7 @@ template <class T, class R> float tensor_lat() {
   // Configuration: tcgen05.mma uses 128 threads on SM100
   config.THREADS_PER_BLOCK = 128;
   config.THREADS_PER_SM = 128;
-  config.BLOCKS_NUM = 1;
+  config.BLOCKS_NUM = 148;
   config.TOTAL_THREADS = 128;
 
   // Allocate buffers - res needs to be large enough for 128x256 output
@@ -215,8 +218,8 @@ template <class T, class R> float tensor_lat() {
     data2[i] = (T)1.0f;
   }
 
-  gpuErrchk(cudaMalloc(&startClk_g, config.TOTAL_THREADS * sizeof(uint64_t)));
-  gpuErrchk(cudaMalloc(&stopClk_g, config.TOTAL_THREADS * sizeof(uint64_t)));
+  gpuErrchk(cudaMalloc(&startClk_g, config.BLOCKS_NUM * sizeof(uint64_t)));
+  gpuErrchk(cudaMalloc(&stopClk_g, config.BLOCKS_NUM * sizeof(uint64_t)));
   gpuErrchk(cudaMalloc(&data1_g, M_SIZE * sizeof(T)));
   gpuErrchk(cudaMalloc(&data2_g, M_SIZE * sizeof(T)));
   gpuErrchk(cudaMalloc(&res_g, OUT_SIZE * sizeof(R)));
@@ -227,10 +230,10 @@ template <class T, class R> float tensor_lat() {
       cudaMemcpy(data2_g, data2, M_SIZE * sizeof(T), cudaMemcpyHostToDevice));
 
   // Calculate shared memory size
-  int smem_size = sizeof(SharedStorage_Latency<T, T, decltype(sA_layout), decltype(sB_layout)>);
+  int smem_size = sizeof(SharedStorage_Bandwidth<T, T, decltype(sA_layout), decltype(sB_layout)>);
 
   // Set shared memory configuration
-  auto* kernel_ptr = &tensor_latency<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout)>;
+  auto* kernel_ptr = &tensor_bandwidth<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout)>;
   gpuErrchk(cudaFuncSetAttribute(kernel_ptr,
                                   cudaFuncAttributeMaxDynamicSharedMemorySize,
                                   smem_size));
@@ -246,17 +249,17 @@ template <class T, class R> float tensor_lat() {
   gpuErrchk(cudaMemcpy(stopClk, stopClk_g, config.TOTAL_THREADS * sizeof(uint64_t),
                        cudaMemcpyDeviceToHost));
 
-  // Calculate latency
-  float tcgen05_mma_latency, umma_latency;
+  // Calculate bandwidth metrics
+  float tcgen05_mma_cycles_per_op, umma_cycles_per_op;
   uint64_t total_time = stopClk[0] - startClk[0];
-  tcgen05_mma_latency = ((float)(total_time)) / ((float)(REPEAT_ITERS));
+  tcgen05_mma_cycles_per_op = ((float)(total_time)) / ((float)(REPEAT_ITERS));
   // On Blackwell SM100, tcgen05.mma directly maps to UMMA instructions
-  umma_latency = tcgen05_mma_latency;
+  umma_cycles_per_op = tcgen05_mma_cycles_per_op;
 
-  std::cout << "tcgen05.mma latency (CuTE) = " << tcgen05_mma_latency << " (clk)\n";
-  std::cout << "UMMA latency = " << umma_latency << " (clk)\n";
+  std::cout << "tcgen05.mma cycles per op (CuTE) = " << tcgen05_mma_cycles_per_op << " (clk)\n";
+  std::cout << "UMMA cycles per op = " << umma_cycles_per_op << " (clk)\n";
   std::cout << "Total Clk number = " << total_time << "\n";
-  std::cout << "Calculated throughput = " << float(size(mma_tiler)) / tcgen05_mma_latency << " MACs/clk\n";
+  std::cout << "Calculated throughput = " << float(size(mma_tiler)) / tcgen05_mma_cycles_per_op << " MACs/clk\n";
 
   // Cleanup
   cudaFree(startClk_g);
@@ -270,7 +273,7 @@ template <class T, class R> float tensor_lat() {
   free(data2);
   free(res);
 
-  return tcgen05_mma_latency;
+  return tcgen05_mma_cycles_per_op;
 }
 
 #endif

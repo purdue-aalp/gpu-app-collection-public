@@ -1,5 +1,5 @@
-#ifndef LAT_TENSOR_DEF_H
-#define LAT_TENSOR_DEF_H
+#ifndef BW_TENSOR_SM90_DEF_H
+#define BW_TENSOR_SM90_DEF_H
 
 #include <algorithm>
 #include <cuda.h>
@@ -20,23 +20,23 @@ using namespace cute;
 
 // Shared memory structure for CUTLASS CuTE WGMMA
 template <class ElementA, class ElementB, class SmemLayoutA, class SmemLayoutB>
-struct SharedStorage_Latency
+struct SharedStorage_Bandwidth
 {
   alignas(128) cute::ArrayEngine<ElementA, cosize_v<SmemLayoutA>> A;
   alignas(128) cute::ArrayEngine<ElementB, cosize_v<SmemLayoutB>> B;
 };
 
-// CUTLASS CuTE-based tensor latency kernel using WGMMA for Hopper
+// CUTLASS CuTE-based tensor bandwidth kernel using WGMMA for Hopper
 template <class TA, class TB, class TC, class TiledMma, class SmemLayoutA, class SmemLayoutB>
-__global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
-                               TA const* a, TB const* b, TC *res,
-                               TiledMma tiled_mma,
-                               SmemLayoutA sA_layout, SmemLayoutB sB_layout) {
+__global__ void tensor_bandwidth(uint64_t *startClk, uint64_t *stopClk,
+                                 TA const* a, TB const* b, TC *res,
+                                 TiledMma tiled_mma,
+                                 SmemLayoutA sA_layout, SmemLayoutB sB_layout) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
 
   // Shared memory for WGMMA operands
   extern __shared__ char shared_memory[];
-  using SharedStorage = SharedStorage_Latency<TA, TB, SmemLayoutA, SmemLayoutB>;
+  using SharedStorage = SharedStorage_Bandwidth<TA, TB, SmemLayoutA, SmemLayoutB>;
   SharedStorage& smem = *reinterpret_cast<SharedStorage*>(shared_memory);
 
   // Create shared memory tensors
@@ -83,7 +83,7 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
   uint64_t start = 0;
   asm volatile("mov.u64 %0, %%clock64;" : "=l"(start)::"memory");
 
-  // Measure WGMMA latency through repeated operations
+  // Measure WGMMA bandwidth through repeated operations
   for (int j = 0; j < REPEAT_ITERS; ++j) {
     gemm(tiled_mma, tCrA, tCrB, tCrC);
   }
@@ -108,7 +108,7 @@ __global__ void tensor_latency(uint64_t *startClk, uint64_t *stopClk,
   stopClk[gid] = stop;
 }
 
-template <class T, class R> float tensor_lat() {
+template <class T, class R> float tensor_bw() {
   // Create TiledMMA using CUTLASS CuTE WGMMA for Hopper
   // Using F16F16F16 with 64x64x16 tile size (matching wgmma_sm90.cu)
   using TiledMma = decltype(make_tiled_mma(SM90_64x64x16_F16F16F16_SS<GMMA::Major::MN,GMMA::Major::MN>{}));
@@ -156,10 +156,10 @@ template <class T, class R> float tensor_lat() {
       cudaMemcpy(data2_g, data2, M_SIZE * sizeof(T), cudaMemcpyHostToDevice));
 
   // Calculate shared memory size
-  int smem_size = sizeof(SharedStorage_Latency<T, T, decltype(sA_layout), decltype(sB_layout)>);
+  int smem_size = sizeof(SharedStorage_Bandwidth<T, T, decltype(sA_layout), decltype(sB_layout)>);
 
   // Set shared memory configuration
-  auto* kernel_ptr = &tensor_latency<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout)>;
+  auto* kernel_ptr = &tensor_bandwidth<T, T, R, TiledMma, decltype(sA_layout), decltype(sB_layout)>;
   gpuErrchk(cudaFuncSetAttribute(kernel_ptr,
                                   cudaFuncAttributeMaxDynamicSharedMemorySize,
                                   smem_size));
@@ -175,15 +175,15 @@ template <class T, class R> float tensor_lat() {
   gpuErrchk(cudaMemcpy(stopClk, stopClk_g, config.TOTAL_THREADS * sizeof(uint64_t),
                        cudaMemcpyDeviceToHost));
 
-  // Calculate latency
-  float wgmma_latency, gmma_latency;
+  // Calculate bandwidth metrics
+  float wgmma_cycles_per_op, gmma_cycles_per_op;
   uint64_t total_time = stopClk[0] - startClk[0];
-  wgmma_latency = ((float)(total_time)) / ((float)(REPEAT_ITERS));
+  wgmma_cycles_per_op = ((float)(total_time)) / ((float)(REPEAT_ITERS));
   // Note: On Hopper, WGMMA is the actual instruction, not decomposed like WMMA->HMMA
-  gmma_latency = wgmma_latency;  // WGMMA directly maps to GMMA instructions
+  gmma_cycles_per_op = wgmma_cycles_per_op;  // WGMMA directly maps to GMMA instructions
 
-  std::cout << "WGMMA latency (CuTE) = " << wgmma_latency << " (clk)\n";
-  std::cout << "GMMA latency = " << gmma_latency << " (clk)\n";
+  std::cout << "WGMMA cycles per op (CuTE) = " << wgmma_cycles_per_op << " (clk)\n";
+  std::cout << "GMMA cycles per op = " << gmma_cycles_per_op << " (clk)\n";
   std::cout << "Total Clk number = " << total_time << "\n";
 
   // Cleanup
@@ -198,7 +198,7 @@ template <class T, class R> float tensor_lat() {
   free(data2);
   free(res);
 
-  return wgmma_latency;
+  return wgmma_cycles_per_op;
 }
 
 #endif

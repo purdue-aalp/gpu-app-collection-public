@@ -1,17 +1,17 @@
-# Tensor Latency Benchmark - CUTLASS CuTE tcgen05.mma Implementation
+# Tensor Bandwidth Benchmark - CUTLASS CuTE tcgen05.mma Implementation (SM100)
 
-This directory contains a reimplementation of the tensor core latency benchmark using **CUTLASS CuTE library** with **tcgen05.mma (UMMA - Unified Matrix Multiply-Accumulate)** operations for NVIDIA Blackwell (SM100) GPUs.
+This directory contains a reimplementation of the tensor core bandwidth benchmark using **CUTLASS CuTE library** with **tcgen05.mma (UMMA - Unified Matrix Multiply-Accumulate)** operations for NVIDIA Blackwell (SM100) GPUs.
 
 ## Overview
 
-This version builds upon the WGMMA implementation in `tensor_lat_half_2` and adapts it to use Blackwell's tcgen05.mma instructions. The tcgen05.mma operations provide:
+This version builds upon the WGMMA implementation in `tensor_bw_half_sm90` and adapts it to use Blackwell's tcgen05.mma instructions. The tcgen05.mma operations provide:
 
 - Native support for Blackwell's UMMA (Unified Matrix Multiply-Accumulate) instructions
 - Larger matrix tile sizes (128x256x16 vs 64x64x16)
 - Tensor Memory (TMEM) for accumulator storage instead of registers
 - Enhanced performance on Blackwell architecture
 
-## Key Changes from tensor_lat_half_2 (SM90 WGMMA)
+## Key Changes from tensor_bw_half_sm90 (SM90 WGMMA)
 
 ### 1. **MMA Instructions**
    - **SM90 (WGMMA)**: `SM90_64x64x16_F16F16F16_SS`
@@ -21,7 +21,7 @@ This version builds upon the WGMMA implementation in `tensor_lat_half_2` and ada
    - **SM90**: Accumulators stored in registers (RMEM)
    - **SM100**: Accumulators stored in Tensor Memory (TMEM) with explicit allocation
 
-### 3. **TMEM Management** ([tensor_lat_half.h](tensor_lat_half.h))
+### 3. **TMEM Management** ([tensor_bw_half_sm100.h](tensor_bw_half_sm100.h))
    ```cpp
    using TmemAllocator = cute::TMEM::Allocator1Sm;
    TmemAllocator tmem_allocator{};
@@ -78,15 +78,16 @@ make
 ## Usage
 
 ```bash
-./tensor_lat_half
+./tensor_bw_half_sm100
 ```
 
 ## Output
 
 The benchmark measures and reports:
-- **tcgen05.mma latency**: Average clock cycles per tcgen05.mma operation
-- **UMMA latency**: On Blackwell, tcgen05.mma directly maps to UMMA instructions
+- **tcgen05.mma cycles per op**: Average clock cycles per tcgen05.mma operation
+- **UMMA cycles per op**: On Blackwell, tcgen05.mma directly maps to UMMA instructions
 - **Total clock cycles**: Total time for all iterations
+- **Calculated throughput**: MACs per clock cycle
 
 ## Implementation Details
 
@@ -105,7 +106,7 @@ vs. original:
 wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);  // WMMA API
 ```
 
-### Complete Latency Measurement Flow
+### Complete Bandwidth Measurement Flow
 ```cpp
 // 1. Allocate TMEM
 tmem_allocator.allocate(...);
@@ -113,7 +114,7 @@ tmem_allocator.allocate(...);
 // 2. Initialize barrier
 initialize_barrier(smem.mma_barrier, 1);
 
-// 3. Measure latency
+// 3. Measure bandwidth
 if (elect_one_warp) {
     for (int j = 0; j < REPEAT_ITERS; ++j) {
         gemm(tiled_mma, tCrA, tCrB, tCtAcc);
@@ -145,7 +146,7 @@ tmem_allocator.free(...);
 
 Based on CUTLASS example: `/home/shen449/cutlass_private/examples/cute/tutorial/blackwell/01_mma_sm100.cu`
 
-Adapted from: `/home/shen449/gpu-app-collection-public/src/cuda/GPU_Microbenchmark/ubench/core/tensor_lat_half_2/`
+Adapted from: `/home/shen449/gpu-app-collection-public/src/cuda/GPU_Microbenchmark/ubench/core/tensor_bw_half_sm90/`
 
 ## License
 

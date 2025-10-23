@@ -1,10 +1,10 @@
-# Tensor Latency Benchmark - CUTLASS CuTE WGMMA Implementation
+# Tensor Bandwidth Benchmark - CUTLASS CuTE WGMMA Implementation (SM90)
 
-This directory contains a reimplementation of the tensor core latency benchmark using **CUTLASS CuTE library** with **WGMMA (Warp Group Matrix Multiply-Accumulate)** operations for NVIDIA Hopper (SM90+) GPUs.
+This directory contains a reimplementation of the tensor core bandwidth benchmark using **CUTLASS CuTE library** with **WGMMA (Warp Group Matrix Multiply-Accumulate)** operations for NVIDIA Hopper (SM90+) GPUs.
 
 ## Overview
 
-The original `tensor_latency` function used WMMA (Warp Matrix Multiply-Accumulate) API, which is supported on Volta, Turing, Ampere, and later architectures. This version replaces the WMMA implementation with CUTLASS CuTE's WGMMA operations, which provide:
+The original `tensor_bandwidth` function used WMMA (Warp Matrix Multiply-Accumulate) API, which is supported on Volta, Turing, Ampere, and later architectures. This version replaces the WMMA implementation with CUTLASS CuTE's WGMMA operations, which provide:
 
 - Native support for Hopper's GMMA (Generalized Matrix Multiply-Accumulate) instructions
 - Warp-group level operations (128 threads instead of 32)
@@ -12,7 +12,7 @@ The original `tensor_latency` function used WMMA (Warp Matrix Multiply-Accumulat
 
 ## Key Changes
 
-### 1. **Kernel Implementation** ([tensor_lat_half.h](tensor_lat_half.h))
+### 1. **Kernel Implementation** ([tensor_bw_half_sm90.h](tensor_bw_half_sm90.h))
    - Replaced `wmma::fragment` with CUTLASS CuTE `TiledMma` and fragments
    - Uses `SM90_64x64x16_F16F16F16_SS` for 64x64x16 matrix tiles
    - Implements warpgroup synchronization (`warpgroup_arrive`, `warpgroup_wait`)
@@ -42,14 +42,14 @@ make
 ## Usage
 
 ```bash
-./tensor_lat_half
+./tensor_bw_half_sm90
 ```
 
 ## Output
 
 The benchmark measures and reports:
-- **WGMMA latency**: Average clock cycles per WGMMA operation
-- **GMMA latency**: On Hopper, WGMMA directly maps to GMMA instructions
+- **WGMMA bandwidth**: Throughput of WGMMA operations
+- **GMMA bandwidth**: On Hopper, WGMMA directly maps to GMMA instructions
 - **Total clock cycles**: Total time for all iterations
 
 ## Implementation Details
