@@ -1,2 +1,4 @@
 tensor_bw_half_sm100
 traces/
+*.txt
+*.csv
