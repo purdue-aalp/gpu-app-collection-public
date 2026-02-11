@@ -1,17 +1,17 @@
 // L2 cache latency partition benchmark
 //
-// Measures per-load latency from L2 cache misses across L2 partitions.
-// 1. Allocates two L2-sized buffers
-// 2. All threads pollute L2 with the first buffer to evict the second
-// 3. After bar.sync, thread 0 loads from the second buffer at 128B stride,
-//    256 times, measuring each load's latency individually
-// 4. membar.gl serializes each load so latencies are accurate
+// Measures per-load L2 miss latency from each SM.
+// For each target SM:
+//   1. All blocks (1 per SM) pollute L2 with pollute_buf, evicting measure_buf
+//   2. bar.sync, then only blockIdx.x == target_sm's first warp measures
+//   3. 256 loads at 128B stride, membar.gl serializes each load
+// Output: CSV with rows = load index, columns = SM
 
-#include <algorithm>
 #include <assert.h>
 #include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../../../hw_def/hw_def.h"
 
@@ -20,7 +20,7 @@
 
 __global__ void l2_lat_partition(uint64_t *latencies, uint32_t *pollute_buf,
                                  uint32_t *measure_buf, size_t pollute_elements,
-                                 uint32_t *dsink) {
+                                 uint32_t target_sm, uint32_t *dsink) {
   uint32_t uid = blockIdx.x * blockDim.x + threadIdx.x;
   uint32_t total_threads = gridDim.x * blockDim.x;
 
@@ -38,11 +38,11 @@ __global__ void l2_lat_partition(uint64_t *latencies, uint32_t *pollute_buf,
                  : "memory");
   }
 
-  // Ensure all threads finished polluting before measurement
+  // Ensure all threads in this block finished polluting
   asm volatile("bar.sync 0;");
 
-  // Phase 2: First warp measures latency from measure_buf
-  if (uid < warpSize) {
+  // Phase 2: First warp of target SM block measures latency
+  if (blockIdx.x == target_sm && threadIdx.x < warpSize) {
     for (uint32_t i = 0; i < NUM_LOADS; i++) {
       uint32_t *ptr = measure_buf + i * (STRIDE_BYTES / sizeof(uint32_t));
       uint32_t data;
@@ -69,55 +69,82 @@ __global__ void l2_lat_partition(uint64_t *latencies, uint32_t *pollute_buf,
 int main(int argc, char *argv[]) {
   initializeDeviceProp(0, argc, argv);
 
+  // Parse --fast flag: only measure SM 0
+  uint32_t fast_mode = 0;
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--fast") == 0) {
+      fast_mode = 1;
+      break;
+    }
+  }
+
   size_t l2_size = config.L2_SIZE;
   size_t buf_elements = l2_size / sizeof(uint32_t);
+  uint32_t num_sms = fast_mode ? 1 : config.SM_NUMBER;
+  uint32_t blocks = config.SM_NUMBER; // always 1 block per SM for pollution
 
   printf("\nL2 Cache Size: %zu bytes\n", l2_size);
   printf("Stride: %d bytes\n", STRIDE_BYTES);
   printf("Number of loads: %d\n", NUM_LOADS);
   printf("Total measured region: %d bytes\n", NUM_LOADS * STRIDE_BYTES);
+  printf("Number of SMs: %u\n", num_sms);
 
-  // Allocate two L2-sized buffers on device
+  // Allocate device buffers
   uint32_t *pollute_buf_g, *measure_buf_g;
   gpuErrchk(cudaMalloc(&pollute_buf_g, l2_size));
   gpuErrchk(cudaMalloc(&measure_buf_g, l2_size));
-
-  // Initialize both buffers to ensure pages are allocated
   gpuErrchk(cudaMemset(pollute_buf_g, 1, l2_size));
   gpuErrchk(cudaMemset(measure_buf_g, 2, l2_size));
 
-  // Allocate latency output array and sink buffer
   uint64_t *latencies_g;
   uint32_t *dsink_g;
   gpuErrchk(cudaMalloc(&latencies_g, NUM_LOADS * sizeof(uint64_t)));
-  gpuErrchk(cudaMalloc(&dsink_g, config.TOTAL_THREADS * sizeof(uint32_t)));
+  gpuErrchk(
+      cudaMalloc(&dsink_g, blocks * config.THREADS_PER_BLOCK * sizeof(uint32_t)));
 
+  // Host storage: num_sms columns x NUM_LOADS rows
+  uint64_t *all_latencies =
+      (uint64_t *)malloc(num_sms * NUM_LOADS * sizeof(uint64_t));
   uint64_t *latencies = (uint64_t *)malloc(NUM_LOADS * sizeof(uint64_t));
 
-  l2_lat_partition<<<config.BLOCKS_NUM, config.THREADS_PER_BLOCK>>>(
-      latencies_g, pollute_buf_g, measure_buf_g, buf_elements, dsink_g);
-  gpuErrchk(cudaPeekAtLastError());
-  gpuErrchk(cudaDeviceSynchronize());
+  // Launch once per SM
+  for (uint32_t sm = 0; sm < num_sms; sm++) {
+    l2_lat_partition<<<blocks, config.THREADS_PER_BLOCK>>>(
+        latencies_g, pollute_buf_g, measure_buf_g, buf_elements, sm, dsink_g);
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
 
-  // Copy results back
-  gpuErrchk(cudaMemcpy(latencies, latencies_g, NUM_LOADS * sizeof(uint64_t),
-                        cudaMemcpyDeviceToHost));
-
-  // Print per-load results
-  uint64_t total = 0;
-  printf("\n=== L2 Latency Partition Results ===\n");
-  printf("Load#  Offset(B)  Latency(cycles)\n");
-  for (int i = 0; i < NUM_LOADS; i++) {
-    printf("%3d    %8d   %lu\n", i, i * STRIDE_BYTES, latencies[i]);
-    total += latencies[i];
+    gpuErrchk(cudaMemcpy(latencies, latencies_g,
+                          NUM_LOADS * sizeof(uint64_t),
+                          cudaMemcpyDeviceToHost));
+    for (int i = 0; i < NUM_LOADS; i++)
+      all_latencies[sm * NUM_LOADS + i] = latencies[i];
   }
 
-  printf("\nAverage latency: %.1f cycles\n", (double)total / NUM_LOADS);
-  printf("Min latency: %lu cycles\n",
-         *std::min_element(latencies, latencies + NUM_LOADS));
-  printf("Max latency: %lu cycles\n",
-         *std::max_element(latencies, latencies + NUM_LOADS));
+  // CSV header
+  printf("\nLoad#,Offset(B)");
+  for (uint32_t s = 0; s < num_sms; s++)
+    printf(",SM%u", s);
+  printf("\n");
 
+  // CSV rows
+  for (int i = 0; i < NUM_LOADS; i++) {
+    printf("%d,%d", i, i * STRIDE_BYTES);
+    for (uint32_t s = 0; s < num_sms; s++)
+      printf(",%lu", all_latencies[s * NUM_LOADS + i]);
+    printf("\n");
+  }
+
+  // Per-SM summary
+  printf("\nPer-SM average latency:\n");
+  for (uint32_t s = 0; s < num_sms; s++) {
+    uint64_t total = 0;
+    for (int i = 0; i < NUM_LOADS; i++)
+      total += all_latencies[s * NUM_LOADS + i];
+    printf("SM%u: %.1f cycles\n", s, (double)total / NUM_LOADS);
+  }
+
+  free(all_latencies);
   free(latencies);
   gpuErrchk(cudaFree(pollute_buf_g));
   gpuErrchk(cudaFree(measure_buf_g));
