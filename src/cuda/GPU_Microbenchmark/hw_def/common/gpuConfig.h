@@ -173,6 +173,7 @@ inline cudaDeviceProp deviceProp;
 // https://github.com/NVIDIA/open-gpu-kernel-modules/blob/580.95.05/src/common/sdk/nvidia/inc/ctrl/ctrl0080/ctrl0080gr.h#L142
 #define NV2080_CTRL_GR_INFO_INDEX_LITTER_NUM_FBPS 0x00000015
 #define NV2080_CTRL_GR_INFO_INDEX_LITTER_NUM_LTCS 0x00000025
+#define NV0080_CTRL_GR_INFO_INDEX_LITTER_NUM_SLICES_PER_LTC 0x00000032
 
 typedef uint32_t NvHandle;
 typedef uint32_t NvV32;
@@ -317,6 +318,9 @@ inline unsigned initializeDeviceProp(unsigned deviceID, int argc, char *argv[])
         // Get FBP_COUNT and L2_BANKS from NVIDIA RM API
         config.FBP_COUNT = queryGrInfo(NV2080_CTRL_GR_INFO_INDEX_LITTER_NUM_FBPS);
         config.L2_BANKS = queryGrInfo(NV2080_CTRL_GR_INFO_INDEX_LITTER_NUM_LTCS);
+        unsigned num_slices_per_ltc = queryGrInfo(NV0080_CTRL_GR_INFO_INDEX_LITTER_NUM_SLICES_PER_LTC);
+        if (num_slices_per_ltc != 0)
+            config.L2_BANKS *= num_slices_per_ltc;
     }
 
     parseGpuConfigArgs(argc, argv);

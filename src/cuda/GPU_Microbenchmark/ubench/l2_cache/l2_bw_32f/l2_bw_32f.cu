@@ -16,6 +16,30 @@
 
 #include "../../../hw_def/hw_def.h"
 
+// Change this to control the number of hardcoded loads (or pass -DNUM_LOADS=N to nvcc)
+#ifndef NUM_LOADS
+#define NUM_LOADS 8
+#endif
+
+// Compile-time recursive helpers to generate N load instructions and sum N elements
+template <int N>
+struct LoadHelper {
+  __device__ __forceinline__ static void load(float *tmp, float *posArray, uint32_t uid) {
+    float *ptr = posArray + (N-1) * warpSize + uid;
+    asm volatile("ld.global.cg.f32 %0, [%1];" : "=f"(tmp[N-1]) : "l"(ptr) : "memory");
+    LoadHelper<N-1>::load(tmp, posArray, uid);
+  }
+  __device__ __forceinline__ static float sum(float *tmp) {
+    return tmp[N-1] + LoadHelper<N-1>::sum(tmp);
+  }
+};
+
+template <>
+struct LoadHelper<0> {
+  __device__ __forceinline__ static void load(float *, float *, uint32_t) {}
+  __device__ __forceinline__ static float sum(float *) { return 0.0f; }
+};
+
 /*
 L2 cache is warmed up by loading posArray and adding sink
 Start timing after warming up
@@ -31,6 +55,8 @@ __global__ void l2_bw(uint64_t *startClk, uint64_t *stopClk, float *dsink,
   uint32_t tid = threadIdx.x;
   uint32_t bid = blockIdx.x;
   uint32_t uid = bid * blockDim.x + tid;
+  uint32_t warp_id = uid / warpSize;
+  uint32_t lane_id = uid % warpSize;
 
   // a register to avoid compiler optimization
   float sink = 0;
@@ -51,30 +77,25 @@ __global__ void l2_bw(uint64_t *startClk, uint64_t *stopClk, float *dsink,
                  : "memory");
   }
 
-  asm volatile("bar.sync 0;");
+  asm volatile("membar.gl;");
+
+  float tmp[NUM_LOADS];
 
   // start timing
   uint64_t start = 0;
-  asm volatile("mov.u64 %0, %%clock64;" : "=l"(start)::"memory");
+  asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(start)::"memory");
 
-  // load data from l2 cache and accumulate,
-  for (uint32_t i = 0; i < repeat_times; i++)
-  {
-    float *ptr = posArray + (i * warpSize) + uid;
-    asm volatile("{\t\n"
-                 ".reg .f32 data;\n\t"
-                 "ld.global.cg.f32 data, [%1];\n\t"
-                 "add.f32 %0, data, %0;\n\t"
-                 "}"
-                 : "+f"(sink)
-                 : "l"(ptr)
-                 : "memory");
-  }
-  asm volatile("bar.sync 0;");
+  for (uint32_t i = 0; i < repeat_times; i++) {
+    
+  LoadHelper<NUM_LOADS>::load(tmp, posArray + warp_id * NUM_LOADS * warpSize, lane_id);
 
+  asm volatile("membar.gl;");
   // stop timing
-  uint64_t stop = 0;
-  asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop)::"memory");
+  sink += LoadHelper<NUM_LOADS>::sum(tmp);
+}
+uint64_t stop = 0;
+asm volatile("mov.u64 %0, %%globaltimer;" : "=l"(stop)::"memory");
+
 
   // store the result
   startClk[bid * blockDim.x + tid] = start;
@@ -87,16 +108,9 @@ int main(int argc, char *argv[])
 
   initializeDeviceProp(0, argc, argv);
 
-  // Parse command line arguments for --fast flag
-  uint32_t repeat_times = 2048; // default
-  for (int i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "--fast") == 0) {
-      repeat_times = 512;
-      break;
-    }
-  }
+  uint32_t repeat_times = 32;
 
-  unsigned ARRAY_SIZE = config.TOTAL_THREADS + repeat_times * config.WARP_SIZE;
+  unsigned ARRAY_SIZE = config.TOTAL_THREADS * NUM_LOADS;
   assert(ARRAY_SIZE * sizeof(float) <
          config.L2_SIZE); // Array size must not exceed L2 size
 
@@ -137,8 +151,13 @@ int main(int argc, char *argv[])
 
   float bw, BW;
   unsigned long long data =
-      (unsigned long long)config.TOTAL_THREADS * repeat_times * sizeof(float);
-  uint64_t total_time = stopClk[0] - startClk[0];
+      (unsigned long long)config.TOTAL_THREADS * NUM_LOADS * sizeof(float) * repeat_times;
+  uint64_t min_start = startClk[0], max_stop = stopClk[0];
+  for (int i = config.THREADS_PER_BLOCK; i < config.TOTAL_THREADS; i += config.THREADS_PER_BLOCK) {
+    if (startClk[i] < min_start) min_start = startClk[i];
+    if (stopClk[i] > max_stop) max_stop = stopClk[i];
+  }
+  uint64_t total_time = max_stop - min_start;
   std::cout << "Total Clk number = " << total_time << "\n";
 
   // uint64_t total_time =
@@ -147,7 +166,7 @@ int main(int argc, char *argv[])
   BW = bw * config.CLK_FREQUENCY * 1000000 / 1024 / 1024 / 1024;
   std::cout << "L2 bandwidth = " << bw << "(byte/clk), " << BW << "(GB/s)\n";
 
-  float max_bw = config.FBP_COUNT * config.L2_BANKS * L2_BANK_WIDTH_in_BYTE;
+  float max_bw = config.L2_BANKS * 64.f;
   BW = max_bw * config.CLK_FREQUENCY * 1000000 / 1024 / 1024 / 1024;
   std::cout << "Max Theortical L2 bandwidth = " << max_bw << "(byte/clk), "
             << BW << "(GB/s)\n";

@@ -1,17 +1,14 @@
-// L2 cache sector load benchmark: two SMs, one 32-byte sector
+// L2 cache sector benchmark: SM A writes, SM B reads (ordered by atomic), two rounds
 //
-// Each participating SM launches 8 active threads (first 8 of a 32-thread warp).
-// Each thread loads 4B at buf[tid], so 8 threads cover one 32B L2 sector.
-// Threads 8-31 are idle.
+// Round 1: SM A writes to buf+tid,        SM B reads from buf+tid
+// Round 2: SM A writes to buf+tid+8192,   SM B reads from buf+tid+8192
 //
-// Two target SMs are selected via --sm_a <id> and --sm_b <id> (default 0 and 1).
-// All other SMs return immediately.
+// 4-phase atomic barrier enforces strict ordering across rounds:
+//   SM A writes R1 → (barrier=1) → SM B reads R1 → (barrier=2)
+//   → SM A writes R2 → (barrier=3) → SM B reads R2
 //
-// A device-side barrier synchronizes the two active SMs so they hit L2 together,
-// letting you observe contention / sharing effects.
-//
-// Uses ld.global.cg to bypass L1.
-// Output: per-thread load latency (cycles) from SM A and SM B.
+// Both SMs bypass L1 (cg cache operator), targeting L2.
+// Output: per-thread write/read latency for each round in cycles.
 
 #include <assert.h>
 #include <cuda.h>
@@ -25,12 +22,16 @@
 
 // ---------------------------------------------------------------------------
 // Kernel
+// lat_a[0..ACTIVE_THREADS-1]              : SM A write latencies, round 1
+// lat_a[ACTIVE_THREADS..2*ACTIVE_THREADS-1]: SM A write latencies, round 2
+// lat_b[0..ACTIVE_THREADS-1]              : SM B read  latencies, round 1
+// lat_b[ACTIVE_THREADS..2*ACTIVE_THREADS-1]: SM B read  latencies, round 2
 // ---------------------------------------------------------------------------
 __global__ void l2_sector_2sm(uint32_t *buf,
-                               uint64_t *lat_a,   // [ACTIVE_THREADS], SM A latencies
-                               uint64_t *lat_b,   // [ACTIVE_THREADS], SM B latencies
+                               uint64_t *lat_a,
+                               uint64_t *lat_b,
                                uint32_t sm_a, uint32_t sm_b,
-                               int *barrier_cnt,  // global atomic barrier (init = 0)
+                               int *barrier_cnt,  // atomic ordering flag (init = 0)
                                uint32_t *dsink) {
   uint32_t smid;
   asm volatile("mov.u32 %0, %%smid;" : "=r"(smid));
@@ -40,34 +41,110 @@ __global__ void l2_sector_2sm(uint32_t *buf,
   uint32_t tid = threadIdx.x;
   uint32_t sink = 0;
 
-  // ----- device-side barrier: both active SMs must arrive before loading -----
-  // Only thread 0 of each block participates in the counter.
-  if (tid == 0) {
-    atomicAdd(barrier_cnt, 1);
-    // Spin until both SMs have incremented.
-    while (atomicAdd(barrier_cnt, 0) < 2) { /* spin */ }
-  }
-  // Broadcast: all threads in the warp wait for thread 0.
-  __syncthreads();
+  if (smid == sm_a) {
 
-  // ----- load: only first ACTIVE_THREADS threads -----
-  if (tid < ACTIVE_THREADS) {
-    uint32_t *ptr = buf + tid;  // thread t → word t → byte offset t*4 within sector
-    uint32_t data;
-    uint64_t start, stop;
+    // ---- Round 1: write buf+tid ----
+    // if (tid < ACTIVE_THREADS) {
+    //   uint32_t *ptr = buf + tid;
+    //   uint64_t start, stop;
+    //   asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
+    //   asm volatile("st.global.cg.u32 [%0], %1;"
+    //                :: "l"(ptr), "r"(tid + 1)
+    //                : "memory");
+    //   asm volatile("membar.gl;" ::: "memory");
+    //   asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
+    //   // lat_a[tid] = stop - start;
+    // }
+    if (tid < ACTIVE_THREADS) {
+      uint32_t *ptr = buf + tid + 8192;
+      uint32_t data;
+      uint64_t start, stop;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
+      asm volatile("ld.global.cg.u32 %0, [%1];"
+                   : "=r"(data)
+                   : "l"(ptr)
+                   : "memory");
+      asm volatile("membar.gl;" ::: "memory");
+      sink += data;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
+      // lat_b[ACTIVE_THREADS + tid] = stop - start;
+    }
+    // Signal round 1 writes done; wait for SM B to finish reading round 1
+    __syncthreads();
+    if (tid == 0) {
+      asm volatile("membar.gl;" ::: "memory");
+      atomicAdd(barrier_cnt, 1);                          // barrier → 1
+      while (atomicAdd(barrier_cnt, 0) < 2) { /* spin */ } // wait for SM B round 1 done
+    }
+    __syncthreads();
 
-    asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
-    asm volatile("ld.global.cg.u32 %0, [%1];" : "=r"(data) : "l"(ptr) : "memory");
+    // ---- Round 2: write buf+tid+8192 ----
+    // if (tid < ACTIVE_THREADS) {
+    //   uint32_t *ptr = buf + tid + 8192;
+    //   uint64_t start, stop;
+    //   asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
+    //   asm volatile("st.global.cg.u32 [%0], %1;"
+    //                :: "l"(ptr), "r"(tid + 1)
+    //                : "memory");
+    //   asm volatile("membar.gl;" ::: "memory");
+    //   asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
+    //   // lat_a[ACTIVE_THREADS + tid] = stop - start;
+    // }
+    // Signal round 2 writes done
+    __syncthreads();
+    if (tid == 0) {
+      asm volatile("membar.gl;" ::: "memory");
+      atomicAdd(barrier_cnt, 1);                          // barrier → 3
+    }
+
+  } else {  // smid == sm_b
+
+    // ---- Wait for SM A round 1 writes ----
+    if (tid == 0) {
+      while (atomicAdd(barrier_cnt, 0) < 1) { /* spin */ }
+    }
+    __syncthreads();
     asm volatile("membar.gl;" ::: "memory");
-    asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
 
-    sink = data;
-    uint64_t lat = stop - start;
+    // ---- Round 1: read buf+tid ----
+    if (tid < ACTIVE_THREADS) {
+      uint32_t *ptr = buf + tid;
+      uint32_t data;
+      uint64_t start, stop;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
+      asm volatile("ld.global.cg.u32 %0, [%1];"
+                   : "=r"(data)
+                   : "l"(ptr)
+                   : "memory");
+      asm volatile("membar.gl;" ::: "memory");
+      sink += data;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
+      // lat_b[tid] = stop - start;
+    }
+    // Signal round 1 reads done; wait for SM A to finish writing round 2
+    __syncthreads();
+    if (tid == 0) {
+      atomicAdd(barrier_cnt, 1);                          // barrier → 2
+      while (atomicAdd(barrier_cnt, 0) < 3) { /* spin */ } // wait for SM A round 2 done
+    }
+    __syncthreads();
+    asm volatile("membar.gl;" ::: "memory");
 
-    if (smid == sm_a)
-      lat_a[tid] = lat;
-    else
-      lat_b[tid] = lat;
+    // ---- Round 2: read buf+tid+8192 ----
+    if (tid < ACTIVE_THREADS) {
+      uint32_t *ptr = buf + tid + 8192;
+      uint32_t data;
+      uint64_t start, stop;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(start) :: "memory");
+      asm volatile("ld.global.cg.u32 %0, [%1];"
+                   : "=r"(data)
+                   : "l"(ptr)
+                   : "memory");
+      asm volatile("membar.gl;" ::: "memory");
+      sink += data;
+      asm volatile("mov.u64 %0, %%clock64;" : "=l"(stop) :: "memory");
+      // lat_b[ACTIVE_THREADS + tid] = stop - start;
+    }
   }
 
   if (tid == 0)
@@ -95,26 +172,28 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  printf("\nL2 Sector 2-SM Load Benchmark\n");
+  printf("\nL2 Sector 2-SM Write/Read Benchmark (2 rounds)\n");
   printf("Active threads per block  : %d (threads 0..%d of warp)\n",
          ACTIVE_THREADS, ACTIVE_THREADS - 1);
-  printf("Bytes loaded per SM       : %d (%d threads × 4B = 1 sector)\n",
+  printf("Bytes per SM              : %d (%d threads × 4B = 1 sector)\n",
          ACTIVE_THREADS * 4, ACTIVE_THREADS);
-  printf("SM A                      : %u\n", sm_a);
-  printf("SM B                      : %u\n", sm_b);
+  printf("SM A (writer)             : %u\n", sm_a);
+  printf("SM B (reader)             : %u\n", sm_b);
+  printf("Round 1 offset            : buf+tid\n");
+  printf("Round 2 offset            : buf+tid+8192\n");
   printf("Total SMs launched        : %u (others return immediately)\n", num_sms);
 
-  // 32B-aligned buffer covering one sector (8 uint32s)
+  // Buffer: round 1 uses [0..7], round 2 uses [8192..8199]
   uint32_t *buf_g;
-  gpuErrchk(cudaMalloc(&buf_g, ACTIVE_THREADS * sizeof(uint32_t)));
-  gpuErrchk(cudaMemset(buf_g, 1, ACTIVE_THREADS * sizeof(uint32_t)));
+  gpuErrchk(cudaMalloc(&buf_g, (8192 + ACTIVE_THREADS) * sizeof(uint32_t)));
+  gpuErrchk(cudaMemset(buf_g, 0, (8192 + ACTIVE_THREADS) * sizeof(uint32_t)));
 
-  // Latency outputs
+  // Latency outputs: 2 rounds × ACTIVE_THREADS each
   uint64_t *lat_a_g, *lat_b_g;
-  gpuErrchk(cudaMalloc(&lat_a_g, ACTIVE_THREADS * sizeof(uint64_t)));
-  gpuErrchk(cudaMalloc(&lat_b_g, ACTIVE_THREADS * sizeof(uint64_t)));
-  gpuErrchk(cudaMemset(lat_a_g, 0, ACTIVE_THREADS * sizeof(uint64_t)));
-  gpuErrchk(cudaMemset(lat_b_g, 0, ACTIVE_THREADS * sizeof(uint64_t)));
+  gpuErrchk(cudaMalloc(&lat_a_g, 2 * ACTIVE_THREADS * sizeof(uint64_t)));
+  gpuErrchk(cudaMalloc(&lat_b_g, 2 * ACTIVE_THREADS * sizeof(uint64_t)));
+  gpuErrchk(cudaMemset(lat_a_g, 0, 2 * ACTIVE_THREADS * sizeof(uint64_t)));
+  gpuErrchk(cudaMemset(lat_b_g, 0, 2 * ACTIVE_THREADS * sizeof(uint64_t)));
 
   // Barrier counter and sink
   int *barrier_g;
@@ -131,22 +210,35 @@ int main(int argc, char *argv[]) {
   gpuErrchk(cudaDeviceSynchronize());
 
   // Copy results
-  uint64_t lat_a[ACTIVE_THREADS], lat_b[ACTIVE_THREADS];
-  gpuErrchk(cudaMemcpy(lat_a, lat_a_g, ACTIVE_THREADS * sizeof(uint64_t),
+  uint64_t lat_a[2 * ACTIVE_THREADS], lat_b[2 * ACTIVE_THREADS];
+  gpuErrchk(cudaMemcpy(lat_a, lat_a_g, 2 * ACTIVE_THREADS * sizeof(uint64_t),
                         cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaMemcpy(lat_b, lat_b_g, ACTIVE_THREADS * sizeof(uint64_t),
+  gpuErrchk(cudaMemcpy(lat_b, lat_b_g, 2 * ACTIVE_THREADS * sizeof(uint64_t),
                         cudaMemcpyDeviceToHost));
 
-  // Print results
-  printf("\nThread,SM%u_lat(cycles),SM%u_lat(cycles)\n", sm_a, sm_b);
+  // Print results — Round 1
+  printf("\n[Round 1] ptr = buf + tid\n");
+  printf("Thread,SM%u_write_lat(cycles),SM%u_read_lat(cycles)\n", sm_a, sm_b);
   uint64_t sum_a = 0, sum_b = 0;
   for (int t = 0; t < ACTIVE_THREADS; t++) {
     printf("%d,%lu,%lu\n", t, lat_a[t], lat_b[t]);
     sum_a += lat_a[t];
     sum_b += lat_b[t];
   }
-  printf("\nAvg SM%u : %.1f cycles\n", sm_a, (double)sum_a / ACTIVE_THREADS);
-  printf("Avg SM%u : %.1f cycles\n", sm_b, (double)sum_b / ACTIVE_THREADS);
+  printf("Avg SM%u write : %.1f cycles\n", sm_a, (double)sum_a / ACTIVE_THREADS);
+  printf("Avg SM%u read  : %.1f cycles\n", sm_b, (double)sum_b / ACTIVE_THREADS);
+
+  // Print results — Round 2
+  printf("\n[Round 2] ptr = buf + tid + 8192\n");
+  printf("Thread,SM%u_write_lat(cycles),SM%u_read_lat(cycles)\n", sm_a, sm_b);
+  sum_a = 0; sum_b = 0;
+  for (int t = 0; t < ACTIVE_THREADS; t++) {
+    printf("%d,%lu,%lu\n", t, lat_a[ACTIVE_THREADS + t], lat_b[ACTIVE_THREADS + t]);
+    sum_a += lat_a[ACTIVE_THREADS + t];
+    sum_b += lat_b[ACTIVE_THREADS + t];
+  }
+  printf("Avg SM%u write : %.1f cycles\n", sm_a, (double)sum_a / ACTIVE_THREADS);
+  printf("Avg SM%u read  : %.1f cycles\n", sm_b, (double)sum_b / ACTIVE_THREADS);
 
   gpuErrchk(cudaFree(buf_g));
   gpuErrchk(cudaFree(lat_a_g));
