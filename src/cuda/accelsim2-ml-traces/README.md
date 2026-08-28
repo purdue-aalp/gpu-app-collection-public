@@ -57,6 +57,6 @@ ALLOW_REG_VAL_TRACING=1 ./util/tracer_nvbit/run_hw_trace.py -B llama_inference -
 - `collect_all.sh` — turnkey trace + NCU collection across all suites.
 - `inference_*.sh`, `training_*.sh`, `fa2_attention.sh` — per-workload launch wrappers
   (invoked by `run_hw_trace.py` / `run_hw.py` via `define-all-apps.yml`).
-- `*_inference_trace.py`, `llama_training_trace.py`, `benchmark_hopper_forward_varlen_prefill.py`
+- `*_inference_trace.py`, `llama_training_trace.py`
   — the model driver scripts the wrappers call.
 - `_llm_prompt_utils.py` — shared prompt-construction helpers.
