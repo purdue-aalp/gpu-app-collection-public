@@ -9,21 +9,20 @@ namespace {
 constexpr int kWarpSize = 32;
 constexpr int kUnset = -1;
 
-#define CUDA_CHECK(call)                                                     \
-  do {                                                                       \
-    cudaError_t error = (call);                                               \
-    if (error != cudaSuccess) {                                               \
-      std::fprintf(stderr, "CUDA error at %s:%d: %s\n", __FILE__, __LINE__, \
-                   cudaGetErrorString(error));                                \
-      std::exit(EXIT_FAILURE);                                                \
-    }                                                                        \
+#define CUDA_CHECK(call)                                                       \
+  do {                                                                         \
+    cudaError_t error = (call);                                                \
+    if (error != cudaSuccess) {                                                \
+      std::fprintf(stderr, "CUDA error at %s:%d: %s\n", __FILE__, __LINE__,    \
+                   cudaGetErrorString(error));                                 \
+      std::exit(EXIT_FAILURE);                                                 \
+    }                                                                          \
   } while (0)
 
-// An atomic read makes the polling operation visible to both real hardware
-// and the timing simulator.  Volta+ may schedule a runnable sibling lane while
-// the current divergent path repeatedly executes this loop.
-__device__ __forceinline__ int poll(const int *address) {
-  return *reinterpret_cast<const volatile int *>(address);
+// Atomic accesses make synchronization explicit to real hardware and the
+// simulator, without relying on volatile shared-memory visibility.
+__device__ __forceinline__ int poll(int *address) {
+  return atomicAdd(address, 0);
 }
 
 // Lanes 1..31 can reach the wait before lane 0 reaches the publishing path.
@@ -45,7 +44,7 @@ __global__ void forward_publish_kernel(int *output) {
     output[lane] = payload + lane;
   } else {
     payload = 1000;
-    *reinterpret_cast<volatile int *>(&ready) = 1;
+    atomicExch(&ready, 1);
     output[0] = 1000;
   }
 }
@@ -69,7 +68,7 @@ __global__ void reverse_publish_kernel(int *output) {
     output[lane] = payload - lane;
   } else {
     payload = 2000;
-    *reinterpret_cast<volatile int *>(&ready) = 1;
+    atomicExch(&ready, 1);
     output[lane] = 2000 - lane;
   }
 }
@@ -81,46 +80,112 @@ __global__ void token_ring_kernel(int *output) {
   __shared__ int token;
   const int lane = threadIdx.x;
 
-  if (lane == 0) *reinterpret_cast<volatile int *>(&token) = 0;
+  if (lane == 0)
+    atomicExch(&token, 0);
   __syncthreads();
 
   while (poll(&token) != lane) {
   }
   output[lane] = 3000 + lane;
-  *reinterpret_cast<volatile int *>(&token) = lane + 1;
+  atomicExch(&token, lane + 1);
 }
 
-enum TestId { kRing, kForward, kReverse, kTestCount };
+// Reuse the same dynamic split/reconvergence point several times. This catches
+// stale pending masks and split entries that survive one round of scheduling.
+__global__ void multi_round_ring_kernel(int *output) {
+  constexpr int kRounds = 4;
+  __shared__ int token;
+  const int lane = threadIdx.x;
+
+  output[lane] = 0;
+  if (lane == 0)
+    atomicExch(&token, 0);
+  __syncthreads();
+
+  for (int round = 0; round < kRounds; ++round) {
+    const int turn = round * kWarpSize + lane;
+    while (poll(&token) != turn) {
+    }
+    output[lane] += (round + 1) * (lane + 1);
+    atomicExch(&token, turn + 1);
+  }
+}
+
+// Progress must work in both lane directions in one kernel. The second phase
+// depends on lane 31 becoming runnable after lane 0 releases the first phase.
+__global__ void bidirectional_handshake_kernel(int *output) {
+  __shared__ int stage;
+  const int lane = threadIdx.x;
+
+  if (lane == 0)
+    atomicExch(&stage, 0);
+  __syncthreads();
+
+  if (lane == 0) {
+    atomicExch(&stage, 1);
+  } else {
+    while (poll(&stage) < 1) {
+    }
+  }
+
+  if (lane == kWarpSize - 1) {
+    atomicExch(&stage, 2);
+  } else {
+    while (poll(&stage) < 2) {
+    }
+  }
+  output[lane] = 5000 + lane;
+}
+
+enum TestId {
+  kRing,
+  kMultiRoundRing,
+  kHandshake,
+  kForward,
+  kReverse,
+  kTestCount
+};
 
 const char *const kTestNames[kTestCount] = {
-    "token-ring", "forward-publish", "reverse-publish"};
+    "token-ring", "multi-round-ring", "bidirectional-handshake",
+    "forward-publish", "reverse-publish"};
 
 int expected_value(TestId test, int lane) {
   switch (test) {
-    case kForward:
-      return 1000 + lane;
-    case kReverse:
-      return 2000 - lane;
-    case kRing:
-      return 3000 + lane;
-    default:
-      return kUnset;
+  case kForward:
+    return 1000 + lane;
+  case kReverse:
+    return 2000 - lane;
+  case kRing:
+    return 3000 + lane;
+  case kMultiRoundRing:
+    return 10 * (lane + 1);
+  case kHandshake:
+    return 5000 + lane;
+  default:
+    return kUnset;
   }
 }
 
 void launch(TestId test, int *device_output) {
   switch (test) {
-    case kForward:
-      forward_publish_kernel<<<1, kWarpSize>>>(device_output);
-      break;
-    case kReverse:
-      reverse_publish_kernel<<<1, kWarpSize>>>(device_output);
-      break;
-    case kRing:
-      token_ring_kernel<<<1, kWarpSize>>>(device_output);
-      break;
-    default:
-      std::abort();
+  case kForward:
+    forward_publish_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kReverse:
+    reverse_publish_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kRing:
+    token_ring_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kMultiRoundRing:
+    multi_round_ring_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kHandshake:
+    bidirectional_handshake_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  default:
+    std::abort();
   }
 }
 
@@ -141,24 +206,24 @@ bool run_test(TestId test) {
   for (int lane = 0; lane < kWarpSize; ++lane) {
     const int expected = expected_value(test, lane);
     if (host_output[lane] != expected) {
-      std::printf("  lane %2d: got %d, expected %d\n", lane,
-                  host_output[lane], expected);
+      std::printf("  lane %2d: got %d, expected %d\n", lane, host_output[lane],
+                  expected);
       ++failures;
     }
   }
-  std::printf("[%s] %s\n", failures == 0 ? "PASS" : "FAIL",
-              kTestNames[test]);
+  std::printf("[%s] %s\n", failures == 0 ? "PASS" : "FAIL", kTestNames[test]);
   return failures == 0;
 }
 
 int find_test(const char *name) {
   for (int i = 0; i < kTestCount; ++i) {
-    if (std::strcmp(name, kTestNames[i]) == 0) return i;
+    if (std::strcmp(name, kTestNames[i]) == 0)
+      return i;
   }
   return -1;
 }
 
-}  // namespace
+} // namespace
 
 int main(int argc, char **argv) {
   int first = 0;
@@ -167,7 +232,8 @@ int main(int argc, char **argv) {
     first = find_test(argv[1]);
     if (first < 0) {
       std::fprintf(stderr, "Unknown test '%s'. Available tests:\n", argv[1]);
-      for (const char *name : kTestNames) std::fprintf(stderr, "  %s\n", name);
+      for (const char *name : kTestNames)
+        std::fprintf(stderr, "  %s\n", name);
       return EXIT_FAILURE;
     }
     last = first + 1;
@@ -178,11 +244,12 @@ int main(int argc, char **argv) {
 
   int failures = 0;
   for (int test = first; test < last; ++test) {
-    if (!run_test(static_cast<TestId>(test))) ++failures;
+    if (!run_test(static_cast<TestId>(test)))
+      ++failures;
   }
 
   std::printf("RESULT: %s (%d/%d tests passed)\n",
-              failures == 0 ? "PASSED" : "FAILED",
-              last - first - failures, last - first);
+              failures == 0 ? "PASSED" : "FAILED", last - first - failures,
+              last - first);
   return failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
