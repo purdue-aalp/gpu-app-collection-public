@@ -71,8 +71,10 @@ static constexpr int E       = 2;          // bytes per f16
 static constexpr int SBO     = 128;
 static constexpr int LBO_A   = M * E * 8;  // 1024
 static constexpr int LBO_B   = N * E * 8;  // 256
-static constexpr int SMEM_A  = M * K * E;  // 2048
-static constexpr int SMEM_B  = K * N * E;  // 512
+// Swizzled layouts (sw!=0) are sparse and need up to ~8KB/2KB for A/B; size
+// the shared buffers for the worst case so kernel_swizzle doesn't overrun.
+static constexpr int SMEM_A  = 8192;
+static constexpr int SMEM_B  = 2048;
 
 // ---------------------------------------------------------------------------
 // Device helpers (same conventions as wgmma_multik.cu / sim wgmma_layout.h)
@@ -95,24 +97,40 @@ __device__ __forceinline__ uint64_t make_gmma_desc(
     return d;
 }
 
-// Byte offset of logical element (leading, stride) - matches sim wgmma_smem_offset.
+// Swizzle-mode-dependent SBO/LBO for a canonical K-major GMMA operand tile
+// (MN extent = MN). sw!=0 needs a constant 16B LBO and an SBO scaled by the
+// swizzle width, per the real Hopper descriptor layout (verified against the
+// vendored CUTLASS/CuTe GMMA atoms in cutlass-bench).
+__host__ __device__ __forceinline__ constexpr
+int gmma_wsw(int sw) { return sw == 1 ? 8 : sw == 2 ? 4 : sw == 3 ? 2 : 1; }
+__host__ __device__ __forceinline__ constexpr
+int gmma_sbo(int sw) { return 128 * gmma_wsw(sw); }
+__host__ __device__ __forceinline__ constexpr
+int gmma_lbo(int MN, int sw) { return sw ? 16 : MN * 16; }
+
+// Byte offset of logical element (leading, stride), canonical K-major GMMA
+// tiling in units of uint128_t (matches the real Hopper descriptor layout,
+// not just gpgpu-sim's simplified model -- see wgmma_verify.cu for the
+// derivation against the vendored CUTLASS/CuTe GMMA atoms).
 __host__ __device__ __forceinline__
-int smem_off(int leading, int stride, int e, int LBO) {
+int smem_off(int leading, int stride, int e, int LBO, int sw = 0) {
     int T = 16 / e;
-    return (stride % T + (leading % 8) * T) * e
-         + (stride / T) * SBO
-         + (leading / 8) * LBO;
+    int Wsw = gmma_wsw(sw);
+    int u128 = (leading / T) * (LBO / 16)
+             + (stride % 8) * Wsw
+             + (stride / 8) * (gmma_sbo(sw) / 16);
+    return u128 * 16 + (leading % T) * e;
 }
 
-// XOR swizzle - matches sim wgmma_apply_swizzle (mode 0=none,1=128B,2=64B,3=32B).
+// Real Hopper GMMA swizzle == CuTe's Swizzle<B,4,3>: XOR bits [7,7+B) of the
+// byte offset into bits [4,4+B). B = 3/2/1 for 128B/64B/32B swizzle.
 __host__ __device__ __forceinline__
 int apply_swizzle(int off, int sw) {
     if (sw == 0) return off;
-    int stride   = (sw == 1) ? 128 : (sw == 2) ? 64 : 32;
-    int block    = off / stride;
-    int in_block = off % stride;
-    int xm       = (block & 1) ? (stride >> 1) : 0;
-    return block * stride + (in_block ^ xm);
+    int B    = (sw == 1) ? 3 : (sw == 2) ? 2 : 1;
+    int mask = (1 << B) - 1;
+    int yyy  = (off >> 7) & mask;
+    return off ^ (yyy << 4);
 }
 
 #define WGMMA_FENCE     asm volatile("wgmma.fence.sync.aligned;\n"          ::: "memory")
@@ -140,13 +158,14 @@ __device__ __forceinline__ void fill_tiles(
     char* smA, char* smB, const half* A_g, const half* B_g,
     int tid, int nthreads, int sw)
 {
+    const int lbo_a = gmma_lbo(M, sw), lbo_b = gmma_lbo(N, sw);
     for (int i = tid; i < M*K; i += nthreads) {
         int m = i/K, k = i%K;
-        *(half*)(smA + apply_swizzle(smem_off(k, m, E, LBO_A), sw)) = A_g[i];
+        *(half*)(smA + apply_swizzle(smem_off(k, m, E, lbo_a, sw), sw)) = A_g[i];
     }
     for (int i = tid; i < K*N; i += nthreads) {
         int k = i/N, n = i%N;
-        *(half*)(smB + apply_swizzle(smem_off(k, n, E, LBO_B), sw)) = B_g[i];
+        *(half*)(smB + apply_swizzle(smem_off(k, n, E, lbo_b, sw), sw)) = B_g[i];
     }
 }
 
@@ -377,8 +396,8 @@ __global__ void kernel_swizzle(
     fill_tiles(smA, smB, A_g, B_g, tid, WGSIZE, sw);
     __syncthreads();
 
-    uint64_t da = make_gmma_desc(smem_addr(smA), LBO_A, SBO, (uint32_t)sw);
-    uint64_t db = make_gmma_desc(smem_addr(smB), LBO_B, SBO, (uint32_t)sw);
+    uint64_t da = make_gmma_desc(smem_addr(smA), gmma_lbo(M, sw), gmma_sbo(sw), (uint32_t)sw);
+    uint64_t db = make_gmma_desc(smem_addr(smB), gmma_lbo(N, sw), gmma_sbo(sw), (uint32_t)sw);
     float d0=0,d1=0,d2=0,d3=0,d4=0,d5=0,d6=0,d7=0;
 
     uint32_t t0 = 0, t1 = 0;
