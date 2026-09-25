@@ -7,7 +7,11 @@
 namespace {
 
 constexpr int kWarpSize = 32;
+constexpr int kMaxThreads = 2 * kWarpSize;
 constexpr int kUnset = -1;
+// Shared-memory atomics used to keep one path busy long enough (thousands of
+// cycles) for a sibling path to run ahead if nothing holds it back.
+constexpr int kDelayAtomics = 400;
 
 #define CUDA_CHECK(call)                                                       \
   do {                                                                         \
@@ -137,20 +141,114 @@ __global__ void bidirectional_handshake_kernel(int *output) {
   output[lane] = 5000 + lane;
 }
 
+// barrier.sync without .aligned: lanes of one warp may reach the barrier at
+// different instructions (sm_70+). __syncthreads() emits the .aligned form,
+// which requires every lane of a warp to execute the same barrier instruction.
+// The asm text differs per call site so the compiler cannot merge two call
+// sites into one barrier.
+#define BARRIER_SYNC_UNALIGNED(site)                                           \
+  asm volatile("barrier.sync 0; // " site ::: "memory")
+
+__device__ void delay(int *counter, int iterations) {
+  for (int i = 0; i < iterations; ++i)
+    atomicAdd(counter, 1);
+}
+
+// Warp 1 publishes only after a long delay. Warp 0's lanes 0-15 reach the
+// barrier first while lanes 16-31 are still diverging (a loop whose trip count
+// differs per lane) and reconverging. No lane of warp 0 may leave the barrier
+// before warp 1 has published, whatever order its splits are scheduled in.
+// Each arm reads the published value right after its own barrier, before the
+// arms rejoin; the two arms store with different instructions so the compiler
+// cannot sink the read into the join.
+__global__ void barrier_divergence_kernel(int *output) {
+  __shared__ int published[kWarpSize];
+  __shared__ int counter;
+  const int tid = threadIdx.x;
+  const int lane = tid % kWarpSize;
+
+  if (tid < kWarpSize)
+    published[tid] = 0;
+  if (tid == 0)
+    counter = 0;
+  __syncthreads();
+
+  if (tid >= kWarpSize) {
+    delay(&counter, kDelayAtomics);
+    published[lane] = 6000 + lane;
+    BARRIER_SYNC_UNALIGNED("publisher");
+    output[tid] = 6000 + lane;
+  } else if (lane < kWarpSize / 2) {
+    BARRIER_SYNC_UNALIGNED("early half");
+    output[tid] = published[lane];
+  } else {
+    delay(&counter, (lane & 3) + 1);
+    BARRIER_SYNC_UNALIGNED("diverged half");
+    atomicExch(&output[tid], published[lane]);
+  }
+}
+
+// Lanes 0-15 of warp 0 execute the barrier as the last instruction before the
+// branch rejoins; lanes 16-31 reach their barrier much later. The early lanes
+// must stay at the barrier until warp 1 has published, even if the simulator
+// would otherwise let lanes waiting at the join run on without their siblings.
+__global__ void barrier_before_join_kernel(int *output) {
+  __shared__ int published[kWarpSize];
+  __shared__ int counter;
+  const int tid = threadIdx.x;
+  const int lane = tid % kWarpSize;
+
+  if (tid < kWarpSize)
+    published[tid] = 0;
+  if (tid == 0)
+    counter = 0;
+  __syncthreads();
+
+  if (tid >= kWarpSize) {
+    delay(&counter, kDelayAtomics);
+    published[lane] = 7000 + lane;
+    BARRIER_SYNC_UNALIGNED("publisher");
+  } else {
+    // Written late-arm first: nvcc lays the else arm out so that its barrier
+    // falls straight through into the join, which is the case under test.
+    if (lane >= kWarpSize / 2) {
+      delay(&counter, kDelayAtomics);
+      BARRIER_SYNC_UNALIGNED("late half");
+    } else {
+      BARRIER_SYNC_UNALIGNED("early half");
+    }
+  }
+  output[tid] = published[lane];
+}
+
 enum TestId {
   kRing,
   kMultiRoundRing,
   kHandshake,
   kForward,
   kReverse,
+  kBarrierDivergence,
+  kBarrierBeforeJoin,
   kTestCount
 };
 
 const char *const kTestNames[kTestCount] = {
     "token-ring", "multi-round-ring", "bidirectional-handshake",
-    "forward-publish", "reverse-publish"};
+    "forward-publish", "reverse-publish", "barrier-divergence",
+    "barrier-before-join"};
 
-int expected_value(TestId test, int lane) {
+int thread_count(TestId test) {
+  switch (test) {
+  case kBarrierDivergence:
+  case kBarrierBeforeJoin:
+    return kMaxThreads;
+  default:
+    return kWarpSize;
+  }
+}
+
+int expected_value(TestId test, int tid) {
+  const int lane = tid % kWarpSize;
   switch (test) {
   case kForward:
     return 1000 + lane;
@@ -162,6 +260,10 @@ int expected_value(TestId test, int lane) {
     return 10 * (lane + 1);
   case kHandshake:
     return 5000 + lane;
+  case kBarrierDivergence:
+    return 6000 + lane;
+  case kBarrierBeforeJoin:
+    return 7000 + lane;
   default:
     return kUnset;
   }
@@ -184,6 +286,12 @@ void launch(TestId test, int *device_output) {
   case kHandshake:
     bidirectional_handshake_kernel<<<1, kWarpSize>>>(device_output);
     break;
+  case kBarrierDivergence:
+    barrier_divergence_kernel<<<1, kMaxThreads>>>(device_output);
+    break;
+  case kBarrierBeforeJoin:
+    barrier_before_join_kernel<<<1, kMaxThreads>>>(device_output);
+    break;
   default:
     std::abort();
   }
@@ -191,7 +299,8 @@ void launch(TestId test, int *device_output) {
 
 bool run_test(TestId test) {
   int *device_output = nullptr;
-  int host_output[kWarpSize];
+  int host_output[kMaxThreads];
+  const int threads = thread_count(test);
   CUDA_CHECK(cudaMalloc(&device_output, sizeof(host_output)));
   CUDA_CHECK(cudaMemset(device_output, 0xff, sizeof(host_output)));
 
@@ -203,10 +312,10 @@ bool run_test(TestId test) {
   CUDA_CHECK(cudaFree(device_output));
 
   int failures = 0;
-  for (int lane = 0; lane < kWarpSize; ++lane) {
-    const int expected = expected_value(test, lane);
-    if (host_output[lane] != expected) {
-      std::printf("  lane %2d: got %d, expected %d\n", lane, host_output[lane],
+  for (int tid = 0; tid < threads; ++tid) {
+    const int expected = expected_value(test, tid);
+    if (host_output[tid] != expected) {
+      std::printf("  thread %2d: got %d, expected %d\n", tid, host_output[tid],
                   expected);
       ++failures;
     }
