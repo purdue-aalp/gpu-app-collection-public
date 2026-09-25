@@ -138,6 +138,60 @@ int smem_off(int leading, int stride, int E, int LBO, int sw = 0) {
 }
 
 // ---------------------------------------------------------------------------
+// Canonical CuTe GMMA Major-MN smem byte offset, for transposed operands
+// (imm-trans-a / imm-trans-b = 1). Leading dimension is MN, stride is K.
+//
+// Derived from two independent sources, NOT from any simulator formula:
+//
+//   CuTe (cute/atom/mma_traits_sm90_gmma.hpp), in BITS:
+//     Layout_MN_INTER_Atom_Bits = Swizzle<0,4,3> o Layout<Shape< 128,8>,Stride<1, 128>>
+//     Layout_MN_SW32_Atom_Bits  = Swizzle<1,4,3> o Layout<Shape< 256,8>,Stride<1, 256>>
+//     Layout_MN_SW64_Atom_Bits  = Swizzle<2,4,3> o Layout<Shape< 512,8>,Stride<1, 512>>
+//     Layout_MN_SW128_Atom_Bits = Swizzle<3,4,3> o Layout<Shape<1024,8>,Stride<1,1024>>
+//   i.e. the atom is (swizzle-byte-size) bytes wide in MN and 8 deep in K, with
+//   consecutive K stepping by that same byte width. 128/256/512/1024 bits =
+//   16/32/64/128 bytes.
+//
+//   PTX ISA 9.3 9.7.16.5.1.8 / 9.7.16.5.1.9, MN-major swizzled layouts:
+//     LBO = offset from the first (swizzle-byte-size/16) u128 rows to the next
+//           -> the step to the next MN-atom
+//     SBO = offset from the first 8 columns to the next 8 columns
+//           -> the step to the next K-atom
+//
+// Only the swizzled modes are modelled here. The non-swizzled ("interleave")
+// MN-major layout has LBO/SBO defined with the opposite roles per the same two
+// spec sections and is deliberately out of scope for these cases.
+// ---------------------------------------------------------------------------
+__host__ __device__ __forceinline__ constexpr
+int gmma_mn_atom_bytes(int sw) {
+  return sw == 1 ? 128 : sw == 2 ? 64 : sw == 3 ? 32 : 16;
+}
+
+__host__ __device__ __forceinline__ constexpr
+int gmma_mn_atoms(int MN, int E, int sw) {
+  return (MN * E + gmma_mn_atom_bytes(sw) - 1) / gmma_mn_atom_bytes(sw);
+}
+
+__host__ __device__ __forceinline__ constexpr
+int gmma_mn_lbo(int sw) { return gmma_mn_atom_bytes(sw) * 8; }
+
+__host__ __device__ __forceinline__ constexpr
+int gmma_mn_sbo(int MN, int E, int sw) {
+  return gmma_mn_atoms(MN, E, sw) * gmma_mn_atom_bytes(sw) * 8;
+}
+
+__host__ __device__ __forceinline__
+int smem_off_mn(int mn, int k, int E, int MN, int sw) {
+  int ab  = gmma_mn_atom_bytes(sw);
+  int amn = ab / E;
+  int off = (mn / amn) * gmma_mn_lbo(sw)
+          + (k / 8)   * gmma_mn_sbo(MN, E, sw)
+          + (k % 8)   * ab
+          + (mn % amn) * E;
+  return apply_sw(off, sw);
+}
+
+// ---------------------------------------------------------------------------
 // WGMMA protocol macros
 // ---------------------------------------------------------------------------
 #define WGMMA_FENCE  asm volatile("wgmma.fence.sync.aligned;\n" ::: "memory")
@@ -181,6 +235,59 @@ __global__ void kernel_f16(const half* A_g, const half* B_g,
     "{ .reg .pred p; setp.ne.b32 p,1,0;\n"
     "wgmma.mma_async.sync.aligned.m64n16k16.f32.f16.f16 "
     "{%0,%1,%2,%3,%4,%5,%6,%7},%8,%9,p,1,1,0,0; }\n"
+    : "+f"(d0),"+f"(d1),"+f"(d2),"+f"(d3),"+f"(d4),"+f"(d5),"+f"(d6),"+f"(d7)
+    : "l"(da),"l"(db) : "memory");
+  WGMMA_COMMIT; WGMMA_WAIT; WGMMA_FENCE;
+  if (!tid) { uint32_t c; READ_CLK(c); clk_g[2] = c; }
+
+  int b = tid * D_ELEMS;
+  D_g[b]=d0; D_g[b+1]=d1; D_g[b+2]=d2; D_g[b+3]=d3;
+  D_g[b+4]=d4; D_g[b+5]=d5; D_g[b+6]=d6; D_g[b+7]=d7;
+}
+
+// ---------------------------------------------------------------------------
+// F16  m64n16k16  D=f32, BOTH operands MN-major (imm-trans-a = imm-trans-b = 1)
+//
+// Same maths as kernel_f16 -- only the smem layout and the trans immediates
+// differ -- so the host reference is unchanged.
+//
+// A is M x K with MN extent M = 64 (128 bytes at E=2), which spans more than one
+// MN-atom for the narrower swizzles (1 atom at SW128, 2 at SW64, 4 at SW32), so
+// this exercises the LBO / atom-wrapping path. B is K x N with MN extent
+// N = 16 (32 bytes), a single atom in every mode.
+// ---------------------------------------------------------------------------
+static constexpr int MN_SMEM = 4096;
+
+template<int SW>
+__global__ void kernel_f16_mn(const half* A_g, const half* B_g,
+                              float* D_g, uint32_t* clk_g) {
+  __shared__ __align__(128) char smA[MN_SMEM], smB[MN_SMEM];
+  const int tid = threadIdx.x;
+  constexpr int K = 16, E = 2;
+  constexpr int LBO   = gmma_mn_lbo(SW);
+  constexpr int SBO_A = gmma_mn_sbo(M, E, SW);
+  constexpr int SBO_B = gmma_mn_sbo(N, E, SW);
+
+  if (!tid) { uint32_t c; READ_CLK(c); clk_g[0] = c; }
+  for (int i = tid; i < M*K; i += WGSIZE) {
+    int m = i/K, k = i%K;
+    *(half*)(smA + smem_off_mn(m, k, E, M, SW)) = A_g[i];
+  }
+  for (int i = tid; i < K*N; i += WGSIZE) {
+    int k = i/N, n = i%N;
+    *(half*)(smB + smem_off_mn(n, k, E, N, SW)) = B_g[i];
+  }
+  __syncthreads();
+  if (!tid) { uint32_t c; READ_CLK(c); clk_g[1] = c; }
+
+  uint64_t da = make_gmma_desc(smem_addr(smA), LBO, SBO_A, SW);
+  uint64_t db = make_gmma_desc(smem_addr(smB), LBO, SBO_B, SW);
+  float d0=0,d1=0,d2=0,d3=0,d4=0,d5=0,d6=0,d7=0;
+  WGMMA_FENCE;
+  asm volatile(
+    "{ .reg .pred p; setp.ne.b32 p,1,0;\n"
+    "wgmma.mma_async.sync.aligned.m64n16k16.f32.f16.f16 "
+    "{%0,%1,%2,%3,%4,%5,%6,%7},%8,%9,p,1,1,1,1; }\n"
     : "+f"(d0),"+f"(d1),"+f"(d2),"+f"(d3),"+f"(d4),"+f"(d5),"+f"(d6),"+f"(d7)
     : "l"(da),"l"(db) : "memory");
   WGMMA_COMMIT; WGMMA_WAIT; WGMMA_FENCE;
@@ -719,6 +826,31 @@ static bool test_f16(const char* name, int sw,
                  A_h.data(), B_h.data(), A_d.data(), B_d.data(), launch);
 }
 
+// ---- F16, MN-major operands (trans-a = trans-b = 1) ----
+static bool test_f16_mn(const char* name, int sw,
+                        const float* A_host, const float* B_host) {
+  constexpr int K = 16;
+  std::vector<half>   A_h(M*K), B_h(K*N);
+  std::vector<double> A_d(M*K), B_d(K*N);
+  for (int i = 0; i < M*K; ++i) {
+    A_h[i] = __float2half(A_host[i]);
+    A_d[i] = (double)__half2float(A_h[i]);
+  }
+  for (int i = 0; i < K*N; ++i) {
+    B_h[i] = __float2half(B_host[i]);
+    B_d[i] = (double)__half2float(B_h[i]);
+  }
+  auto launch = [sw](const void* dA, const void* dB, float* dD, uint32_t* dC) {
+    switch (sw) {
+      case 1: kernel_f16_mn<1><<<1,WGSIZE>>>((const half*)dA,(const half*)dB,dD,dC); break;
+      case 2: kernel_f16_mn<2><<<1,WGSIZE>>>((const half*)dA,(const half*)dB,dD,dC); break;
+      case 3: kernel_f16_mn<3><<<1,WGSIZE>>>((const half*)dA,(const half*)dB,dD,dC); break;
+    }
+  };
+  return run_f32(name, K, M*K*sizeof(half), K*N*sizeof(half),
+                 A_h.data(), B_h.data(), A_d.data(), B_d.data(), launch);
+}
+
 // ---- BF16 ----
 static bool test_bf16(const char* name,
                       const float* A_host, const float* B_host) {
@@ -880,6 +1012,31 @@ int main() {
     for (int sw = 0; sw < 4; ++sw) {
       char name[64]; snprintf(name, sizeof(name), "f16 sequential swizzle=%d", sw);
       all_pass &= test_f16(name, sw, (float*)A, (float*)B);
+    }
+  }
+
+  // =========================================================================
+  // F16  m64n16k16  D=f32, MN-major operands (trans-a = trans-b = 1)
+  // Swizzled modes only; MN-major interleave has different LBO/SBO semantics.
+  // =========================================================================
+  printf("\n--- F16 m64n16k16  D=f32  MN-major (trans-a=trans-b=1) ---\n");
+  {
+    static float A[M][16], B[16][N];
+    for (int m = 0; m < M; ++m) for (int k = 0; k < 16; ++k) A[m][k] = 1.f;
+    for (int k = 0; k < 16; ++k) for (int n = 0; n < N; ++n) B[k][n] = 1.f;
+    for (int sw = 1; sw < 4; ++sw) {
+      char name[64];
+      snprintf(name, sizeof(name), "f16 MN-major all-ones  swizzle=%d", sw);
+      all_pass &= test_f16_mn(name, sw, (float*)A, (float*)B);
+    }
+    for (int m = 0; m < M; ++m)
+      for (int k = 0; k < 16; ++k) A[m][k] = (m*16 + k + 1) * 0.1f;
+    for (int k = 0; k < 16; ++k)
+      for (int n = 0; n < N; ++n) B[k][n] = (k*N + n + 1) * 0.1f;
+    for (int sw = 1; sw < 4; ++sw) {
+      char name[64];
+      snprintf(name, sizeof(name), "f16 MN-major sequential swizzle=%d", sw);
+      all_pass &= test_f16_mn(name, sw, (float*)A, (float*)B);
     }
   }
 
