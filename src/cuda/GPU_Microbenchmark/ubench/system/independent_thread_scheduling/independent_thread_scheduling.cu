@@ -221,6 +221,93 @@ __global__ void barrier_before_join_kernel(int *output) {
   output[tid] = published[lane];
 }
 
+// The callees below are __noinline__ so they run as real PTX call/ret, where
+// divergence inside the callee has to reconverge and return correctly.
+
+// Lanes split inside the callee: lane 0 publishes, the rest wait for it, and
+// both paths rejoin before returning.
+__device__ __noinline__ int handshake_callee(int *flag, int lane) {
+  int value;
+  if (lane == 0) {
+    value = 8000;
+    atomicExch(flag, 1);
+  } else {
+    while (poll(flag) == 0) {
+    }
+    value = 8000 + lane;
+  }
+  return value;
+}
+
+__global__ void call_divergence_kernel(int *output) {
+  __shared__ int flag;
+  const int lane = threadIdx.x;
+
+  if (lane == 0)
+    atomicExch(&flag, 0);
+  __syncthreads();
+
+  output[lane] = handshake_callee(&flag, lane);
+}
+
+// Odd lanes return from the callee immediately; the even lanes stay behind for
+// a handshake and return later.
+__device__ __noinline__ int early_return_callee(int *flag, int lane) {
+  if (lane & 1)
+    return 9000 + lane;
+  if (lane == 0) {
+    atomicExch(flag, 1);
+  } else {
+    while (poll(flag) == 0) {
+    }
+  }
+  return 9000 + lane;
+}
+
+__global__ void call_early_return_kernel(int *output) {
+  __shared__ int flag;
+  const int lane = threadIdx.x;
+
+  if (lane == 0)
+    atomicExch(&flag, 0);
+  __syncthreads();
+
+  output[lane] = early_return_callee(&flag, lane);
+}
+
+// Only half the warp calls the inner function, from inside a divergent branch
+// of the outer one, so the inner call's frame must return to a split that is
+// itself inside a call.
+__device__ __noinline__ int nested_inner(int *flag, int lane) {
+  if (lane == 0) {
+    atomicExch(flag, 1);
+  } else {
+    while (poll(flag) == 0) {
+    }
+  }
+  return 10000 + lane;
+}
+
+__device__ __noinline__ int nested_outer(int *flag, int lane) {
+  int value;
+  if (lane < kWarpSize / 2)
+    value = nested_inner(flag, lane);
+  else
+    value = 11000 + lane;
+  return value + 1;
+}
+
+__global__ void call_nested_kernel(int *output) {
+  __shared__ int flag;
+  const int lane = threadIdx.x;
+
+  if (lane == 0)
+    atomicExch(&flag, 0);
+  __syncthreads();
+
+  output[lane] = nested_outer(&flag, lane);
+}
+
 enum TestId {
   kRing,
   kMultiRoundRing,
@@ -229,13 +316,17 @@ enum TestId {
   kReverse,
   kBarrierDivergence,
   kBarrierBeforeJoin,
+  kCallDivergence,
+  kCallEarlyReturn,
+  kCallNested,
   kTestCount
 };
 
 const char *const kTestNames[kTestCount] = {
     "token-ring", "multi-round-ring", "bidirectional-handshake",
     "forward-publish", "reverse-publish", "barrier-divergence",
-    "barrier-before-join"};
+    "barrier-before-join", "call-divergence", "call-early-return",
+    "call-nested"};
 
 int thread_count(TestId test) {
   switch (test) {
@@ -264,6 +355,12 @@ int expected_value(TestId test, int tid) {
     return 6000 + lane;
   case kBarrierBeforeJoin:
     return 7000 + lane;
+  case kCallDivergence:
+    return 8000 + lane;
+  case kCallEarlyReturn:
+    return 9000 + lane;
+  case kCallNested:
+    return lane < kWarpSize / 2 ? 10001 + lane : 11001 + lane;
   default:
     return kUnset;
   }
@@ -291,6 +388,15 @@ void launch(TestId test, int *device_output) {
     break;
   case kBarrierBeforeJoin:
     barrier_before_join_kernel<<<1, kMaxThreads>>>(device_output);
+    break;
+  case kCallDivergence:
+    call_divergence_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kCallEarlyReturn:
+    call_early_return_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kCallNested:
+    call_nested_kernel<<<1, kWarpSize>>>(device_output);
     break;
   default:
     std::abort();
