@@ -308,6 +308,62 @@ __global__ void call_nested_kernel(int *output) {
   output[lane] = nested_outer(&flag, lane);
 }
 
+// Ends the calling thread on the spot, without passing the reconvergence
+// point of any branch it is inside.
+__device__ __forceinline__ void exit_thread() { asm volatile("exit;"); }
+
+// Reconvergence points are found per function, so the caller's branch below
+// rejoins after the call even though lane 5 exits inside the callee. The other
+// lanes must not wait at the join for lane 5; with strict reconvergence
+// (-gpgpu_simd_rec_time_out -1) they would otherwise wait forever.
+__device__ __noinline__ int exit_one_lane(int lane) {
+  if (lane == 5)
+    exit_thread();
+  return 12000 + lane;
+}
+
+__global__ void exit_in_divergent_call_kernel(int *output) {
+  const int lane = threadIdx.x;
+  int value;
+
+  if (lane == 5)
+    output[lane] = 12000 + lane;
+  if (lane & 1)
+    value = exit_one_lane(lane);
+  else
+    value = 12000 + lane;
+  output[lane] = value;
+}
+
+// Lanes exit inside a __noinline__ callee while the rest return from it and
+// run a handshake afterwards. The call's frame must not keep waiting for the
+// exited lanes.
+__device__ __noinline__ int exit_in_callee(int lane) {
+  if (lane >= kWarpSize - 4)
+    exit_thread();
+  return 13000 + lane;
+}
+
+__global__ void exit_in_call_kernel(int *output) {
+  __shared__ int flag;
+  const int lane = threadIdx.x;
+
+  if (lane == 0)
+    atomicExch(&flag, 0);
+  __syncthreads();
+
+  if (lane >= kWarpSize - 4)
+    output[lane] = 13000 + lane;
+  const int value = exit_in_callee(lane);
+  if (lane == 0) {
+    atomicExch(&flag, 1);
+  } else {
+    while (poll(&flag) == 0) {
+    }
+  }
+  output[lane] = value;
+}
+
 enum TestId {
   kRing,
   kMultiRoundRing,
@@ -319,6 +375,8 @@ enum TestId {
   kCallDivergence,
   kCallEarlyReturn,
   kCallNested,
+  kExitInDivergentCall,
+  kExitInCall,
   kTestCount
 };
 
@@ -326,7 +384,8 @@ const char *const kTestNames[kTestCount] = {
     "token-ring", "multi-round-ring", "bidirectional-handshake",
     "forward-publish", "reverse-publish", "barrier-divergence",
     "barrier-before-join", "call-divergence", "call-early-return",
-    "call-nested"};
+    "call-nested", "exit-in-divergent-call",
+    "exit-in-call"};
 
 int thread_count(TestId test) {
   switch (test) {
@@ -361,6 +420,10 @@ int expected_value(TestId test, int tid) {
     return 9000 + lane;
   case kCallNested:
     return lane < kWarpSize / 2 ? 10001 + lane : 11001 + lane;
+  case kExitInDivergentCall:
+    return 12000 + lane;
+  case kExitInCall:
+    return 13000 + lane;
   default:
     return kUnset;
   }
@@ -397,6 +460,12 @@ void launch(TestId test, int *device_output) {
     break;
   case kCallNested:
     call_nested_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kExitInDivergentCall:
+    exit_in_divergent_call_kernel<<<1, kWarpSize>>>(device_output);
+    break;
+  case kExitInCall:
+    exit_in_call_kernel<<<1, kWarpSize>>>(device_output);
     break;
   default:
     std::abort();
