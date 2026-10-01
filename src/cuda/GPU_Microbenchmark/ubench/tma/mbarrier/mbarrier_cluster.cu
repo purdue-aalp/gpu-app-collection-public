@@ -650,7 +650,7 @@ int main() {
            h[0],h[1],h[2],h[3],h[4],h[5],h[6],h[7],h[8]);
     bool all = true;
     for (int i = 0; i < N; i++) all = all && (h[i] == 1);
-    printf("Overall: %s\n", all ? "PASS" : "PARTIAL/FAIL");
+    printf("Overall: %s\n", all ? "PASSED" : "FAILED");
 
     cudaFree(d);
     return 0;

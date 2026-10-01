@@ -61,20 +61,24 @@ __global__ void test_UTMALDG(const __grid_constant__ CUtensorMap tensor_map,
     int x = (int)(blockDim.x * blockIdx.x);
     int y = (int)(blockDim.y * blockIdx.y);
 
-    // bar is intentionally left uninitialized. The functional simulator executes
-    // TMA loads synchronously so the mbarrier completion path is never taken.
-    // Calling init() would register the mbarrier in the sim's tracking table
-    // and trigger a duplicate-registration assertion across multiple CTAs.
+    if (threadIdx.x == 0 && threadIdx.y == 0) {
+        init(&bar, blockDim.x * blockDim.y);
+        ptx::fence_proxy_async(ptx::space_shared);
+    }
     __syncthreads();
 
     for (int i = 0; i < run_iters; i++) {
+        barrier::arrival_token token;
         if (threadIdx.x == 0 && threadIdx.y == 0) {
             ptx::cp_async_bulk_tensor(
                 ptx::space_cluster, ptx::space_global,
                 &smem_buffer, &tensor_map, {x, y},
                 cuda::device::barrier_native_handle(bar));
+            token = cuda::device::barrier_arrive_tx(bar, 1, sizeof(smem_buffer));
+        } else {
+            token = bar.arrive();
         }
-        __syncthreads();
+        bar.wait(std::move(token));
     }
 
     // Trusted scalar copy: verifies TMA populated smem correctly

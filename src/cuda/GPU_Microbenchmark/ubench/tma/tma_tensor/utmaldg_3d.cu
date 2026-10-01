@@ -14,7 +14,7 @@
  * Strategy:
  *   1. Global source tensor initialized with unique values (1, 2, 3, ...)
  *   2. Destination buffer (d_dst) poisoned with 0xDEADBEEF
- *   3. Kernel: thread (0,0,0) issues 3D TMA load; __syncthreads() as fence
+ *   3. Kernel: thread (0,0,0) issues 3D TMA load via mbarrier; all threads wait
  *   4. Trusted scalar copy: each thread writes its smem element to d_dst
  *   PASS: d_dst matches original source for in-bounds elements
  *   FAIL_NOP: d_dst still contains poison
@@ -71,18 +71,24 @@ __global__ void test_UTMALDG_3D(const __grid_constant__ CUtensorMap tensor_map,
     int y = (int)(blockDim.y * blockIdx.y);
     int z = (int)(blockDim.z * blockIdx.z);
 
-    // bar is left uninitialized: functional sim executes TMA synchronously;
-    // calling init() triggers a multi-CTA mbarrier duplicate-registration assertion.
+    if (threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0) {
+        init(&bar, blockDim.x * blockDim.y * blockDim.z);
+        ptx::fence_proxy_async(ptx::space_shared);
+    }
     __syncthreads();
 
     for (int i = 0; i < run_iters; i++) {
+        barrier::arrival_token token;
         if (threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0) {
             ptx::cp_async_bulk_tensor(
                 ptx::space_cluster, ptx::space_global,
                 &smem_buffer, &tensor_map, {x, y, z},
                 cuda::device::barrier_native_handle(bar));
+            token = cuda::device::barrier_arrive_tx(bar, 1, sizeof(smem_buffer));
+        } else {
+            token = bar.arrive();
         }
-        __syncthreads();
+        bar.wait(std::move(token));
     }
 
     // Trusted scalar copy: verify TMA load populated smem correctly
