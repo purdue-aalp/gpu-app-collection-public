@@ -1,324 +1,323 @@
-// griddepcontrol_semantics.cu
-// Semantic tests for CUDA Programmatic Dependent Launch / grid dependency
-// control.
+// Standalone GPGPU-Sim Programmatic Dependent Launch (PDL) regression tests:
+//   explicit_wait:   early secondary execution and a wait that blocks reads.
+//   all_cta_trigger: every CTA must signal; duplicate triggers do not count.
+//   exit_arrival:    a CTA that exits without triggering counts as an arrival.
+//   no_attribute:    ordinary same-stream serialization remains intact.
 //
-// Covers:
-//   1. Explicit trigger smoke test
-//   2. Implicit trigger smoke test
-//   3. Large memory visibility: pre-trigger and post-trigger writes
-//   4. Uneven CTA trigger timing: dependent launch must wait for all primary
-//      CTAs to trigger
-//   5. No-attribute control: without programmatic stream serialization, normal
-//      stream ordering applies
+// The first three cases require observed overlap, using two small primary CTAs
+// and a secondary CTA. Use the prepared Hopper timing configuration with spare
+// SMs. CUDA hardware may legally serialize PDL grids, so these strict overlap
+// checks are simulator regressions, not portable hardware conformance tests.
+// All primary delays are bounded; no primary waits for the secondary to run.
 //
-// Notes for simulator bring-up:
-//   - overlap_seen is intentionally a soft observation, not a hard requirement.
-//   - Correctness is based on data visibility after
-//     cudaGridDependencySynchronize().
-//   - The memory-visibility checks intentionally do not rely on __threadfence()
-//     around primary writes.
+// Run all cases, or select one:
+//   ./griddepcontrol_semantics
+//   ./griddepcontrol_semantics --case explicit_wait
+// Negative control (must fail explicit_wait/exit_arrival under the same config):
+//   ./griddepcontrol_semantics --case explicit_wait --skip-wait
+// The runtime skip preserves a wait instruction in the kernel's PTX so that
+// GPGPU-Sim still recognizes it as eligible for an early dependent launch.
 
 #include <cuda_runtime.h>
 
 #include <cstdio>
 #include <cstdlib>
-#include <vector>
+#include <cstring>
 
-#define CHECK_CUDA(call)                                                     \
-    do {                                                                     \
-        cudaError_t err__ = (call);                                          \
-        if (err__ != cudaSuccess) {                                          \
-            fprintf(stderr, "%s:%d: CUDA error: %s\n",                       \
-                    __FILE__, __LINE__, cudaGetErrorString(err__));          \
-            std::exit(1);                                                    \
-        }                                                                    \
-    } while (0)
+#define CHECK_CUDA(call)                                                       \
+  do {                                                                         \
+    cudaError_t err__ = (call);                                                 \
+    if (err__ != cudaSuccess) {                                                 \
+      std::fprintf(stderr, "%s:%d: CUDA error: %s\n", __FILE__, __LINE__,         \
+                   cudaGetErrorString(err__));                                 \
+      std::exit(1);                                                            \
+    }                                                                          \
+  } while (0)
 
-static constexpr int BLOCKS            = 2;
-static constexpr int THREADS           = 32;
-static constexpr int WORDS_PER_BLOCK   = 256;
-static constexpr int PRE_SPIN          = 200;
-static constexpr int POST_TRIGGER_SPIN = 200;
-static constexpr int LONG_SPIN         = 4000;
+namespace {
 
-// Device-global witness flags.
-// secondary_started: set by secondary as soon as it begins executing
-// overlap_seen:      set by primary if it sees secondary_started before
-//                    finishing
-__device__ volatile int secondary_started;
-__device__ volatile int overlap_seen;
+constexpr int kPrimaryBlocks = 2;
+constexpr int kPrimaryThreads = 32;
+constexpr int kSecondaryThreads = 128;
+constexpr int kDelayIterations = 4000;
+constexpr int kTriggerDelayIterations = 1000;
+constexpr int kLateMagic = 0x5a170000;
 
-__device__ __forceinline__ void burn_cycles(int n) {
-    volatile int x = threadIdx.x + blockIdx.x;
-    for (int i = 0; i < n; ++i) {
-        x = x * 1664525 + 1013904223;
-    }
-}
-
-__device__ __forceinline__ int pre_pattern(int block, int i) {
-    return 0x10000000 ^ (block * 0x1009) ^ i;
-}
-
-__device__ __forceinline__ int post_pattern(int block, int i) {
-    return 0x20000000 ^ (block * 0x2003) ^ i;
-}
-
-__device__ __forceinline__ void write_pre_region(int *buf) {
-    int base = blockIdx.x * WORDS_PER_BLOCK;
-    for (int i = threadIdx.x; i < WORDS_PER_BLOCK / 2; i += blockDim.x) {
-        buf[base + i] = pre_pattern(blockIdx.x, i);
-    }
-}
-
-__device__ __forceinline__ void write_post_region(int *buf) {
-    int base = blockIdx.x * WORDS_PER_BLOCK;
-    for (int i = WORDS_PER_BLOCK / 2 + threadIdx.x; i < WORDS_PER_BLOCK;
-         i += blockDim.x) {
-        buf[base + i] = post_pattern(blockIdx.x, i);
-    }
-}
-
-__device__ __forceinline__ void observe_secondary_and_finish(int *done) {
-    for (int i = 0; i < POST_TRIGGER_SPIN; ++i) {
-        if (threadIdx.x == 0 && secondary_started) {
-            overlap_seen = 1;
-        }
-        burn_cycles(1);
-    }
-
-    if (threadIdx.x == 0) {
-        done[blockIdx.x] = 1;
-    }
-}
-
-// Explicit primary: write first region, trigger dependent launch eligibility,
-// then continue with post-trigger writes.
-__global__ void primary_explicit_memory(int *done, int *buf) {
-    burn_cycles(PRE_SPIN);
-    write_pre_region(buf);
-
-    if (threadIdx.x == 0) {
-        cudaTriggerProgrammaticLaunchCompletion();
-    }
-
-    write_post_region(buf);
-    observe_secondary_and_finish(done);
-}
-
-// Implicit primary: no explicit trigger; release is implicit at primary
-// completion.
-__global__ void primary_implicit_memory(int *done, int *buf) {
-    burn_cycles(PRE_SPIN);
-    write_pre_region(buf);
-    write_post_region(buf);
-    observe_secondary_and_finish(done);
-}
-
-// Uneven explicit trigger timing:
-//   block 0 writes pre, triggers early, then spins and writes post
-//   block 1 writes pre, spins first, triggers late, then writes post
-// The secondary may start only after all primary CTAs have reached
-// trigger/completion eligibility.
-__global__ void primary_explicit_uneven(int *done, int *buf) {
-    write_pre_region(buf);
-
-    if (blockIdx.x == 0) {
-        if (threadIdx.x == 0) {
-            cudaTriggerProgrammaticLaunchCompletion();
-        }
-        burn_cycles(LONG_SPIN);
-    } else {
-        burn_cycles(LONG_SPIN);
-        if (threadIdx.x == 0) {
-            cudaTriggerProgrammaticLaunchCompletion();
-        }
-    }
-
-    write_post_region(buf);
-    observe_secondary_and_finish(done);
-}
-
-__global__ void secondary_check_full(const int *done,
-                                     const int *buf,
-                                     int *errors,
-                                     int *presync_counter) {
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        secondary_started = 1;
-    }
-
-    if (threadIdx.x == 0) {
-        atomicAdd(presync_counter, 1);
-    }
-
-    // The key operation under test.
-    cudaGridDependencySynchronize();
-
-    // Check original-style per-primary-CTA completion witness.
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid < BLOCKS) {
-        if (done[tid] != 1) {
-            atomicAdd(errors, 1);
-        }
-    }
-
-    // Check larger memory visibility, including pre-trigger and post-trigger
-    // writes.
-    int total_words = BLOCKS * WORDS_PER_BLOCK;
-    for (int idx = tid; idx < total_words; idx += gridDim.x * blockDim.x) {
-        int b = idx / WORDS_PER_BLOCK;
-        int i = idx % WORDS_PER_BLOCK;
-        int expected =
-            (i < WORDS_PER_BLOCK / 2) ? pre_pattern(b, i) : post_pattern(b, i);
-        if (buf[idx] != expected) {
-            atomicAdd(errors, 1);
-        }
-    }
-}
-
-static void reset_device_flags() {
-    int zero = 0;
-    CHECK_CUDA(cudaMemcpyToSymbol(secondary_started, &zero, sizeof(int)));
-    CHECK_CUDA(cudaMemcpyToSymbol(overlap_seen, &zero, sizeof(int)));
-}
-
-static int copy_overlap_seen_to_host() {
-    int h_overlap = 0;
-    CHECK_CUDA(cudaMemcpyFromSymbol(&h_overlap, overlap_seen, sizeof(int)));
-    return h_overlap;
-}
-
-static int copy_secondary_started_to_host() {
-    int h_started = 0;
-    CHECK_CUDA(cudaMemcpyFromSymbol(&h_started, secondary_started, sizeof(int)));
-    return h_started;
-}
-
-enum class PrimaryKind {
-    ExplicitMemory,
-    ImplicitMemory,
-    ExplicitUneven,
+struct Witness {
+  int late[kPrimaryBlocks];
+  int done[kPrimaryBlocks];
+  int secondary_started;
+  unsigned stale_mask;
+  int errors;
+  int delayed_cta_ready;
+  int premature_entries;
 };
 
-static void launch_primary(PrimaryKind kind,
-                           int *d_done,
-                           int *d_buf,
-                           cudaStream_t stream) {
-    switch (kind) {
-        case PrimaryKind::ExplicitMemory:
-            primary_explicit_memory<<<BLOCKS, THREADS, 0, stream>>>(d_done,
-                                                                    d_buf);
-            break;
-        case PrimaryKind::ImplicitMemory:
-            primary_implicit_memory<<<BLOCKS, THREADS, 0, stream>>>(d_done,
-                                                                    d_buf);
-            break;
-        case PrimaryKind::ExplicitUneven:
-            primary_explicit_uneven<<<BLOCKS, THREADS, 0, stream>>>(d_done,
-                                                                    d_buf);
-            break;
-    }
-    CHECK_CUDA(cudaGetLastError());
+enum class PrimaryKind { Explicit, Uneven, MixedExit };
+
+struct TestCase {
+  const char *name;
+  PrimaryKind primary;
+  bool pdl_attribute;
+  // In addition to any stale value, require these specific CTA bits to be stale.
+  unsigned required_stale_mask;
+};
+
+const TestCase kCases[] = {
+    {"explicit_wait", PrimaryKind::Explicit, true, 0},
+    {"all_cta_trigger", PrimaryKind::Uneven, true, 1u << 1},
+    {"exit_arrival", PrimaryKind::MixedExit, true, 1u << 0},
+    {"no_attribute", PrimaryKind::Explicit, false, 0},
+};
+
+__device__ __forceinline__ int late_value(int cta) {
+  return kLateMagic ^ cta;
 }
 
-static void run_test(const char *name,
-                     PrimaryKind kind,
-                     bool enable_pdl_attribute) {
-    int *d_done    = nullptr;
-    int *d_buf     = nullptr;
-    int *d_errors  = nullptr;
-    int *d_presync = nullptr;
-
-    const int total_words = BLOCKS * WORDS_PER_BLOCK;
-
-    CHECK_CUDA(cudaMalloc(&d_done, BLOCKS * sizeof(int)));
-    CHECK_CUDA(cudaMalloc(&d_buf, total_words * sizeof(int)));
-    CHECK_CUDA(cudaMalloc(&d_errors, sizeof(int)));
-    CHECK_CUDA(cudaMalloc(&d_presync, sizeof(int)));
-
-    CHECK_CUDA(cudaMemset(d_done, 0, BLOCKS * sizeof(int)));
-    CHECK_CUDA(cudaMemset(d_buf, 0, total_words * sizeof(int)));
-    CHECK_CUDA(cudaMemset(d_errors, 0, sizeof(int)));
-    CHECK_CUDA(cudaMemset(d_presync, 0, sizeof(int)));
-
-    reset_device_flags();
-
-    cudaStream_t stream;
-    CHECK_CUDA(cudaStreamCreate(&stream));
-
-    cudaLaunchAttribute attr{};
-    attr.id = cudaLaunchAttributeProgrammaticStreamSerialization;
-    attr.val.programmaticStreamSerializationAllowed =
-        enable_pdl_attribute ? 1 : 0;
-
-    cudaLaunchConfig_t cfg{};
-    cfg.gridDim = dim3(1);
-    cfg.blockDim = dim3(128);
-    cfg.dynamicSmemBytes = 0;
-    cfg.stream = stream;
-    cfg.attrs = enable_pdl_attribute ? &attr : nullptr;
-    cfg.numAttrs = enable_pdl_attribute ? 1 : 0;
-
-    launch_primary(kind, d_done, d_buf, stream);
-
-    CHECK_CUDA(cudaLaunchKernelEx(&cfg, secondary_check_full, d_done, d_buf,
-                                  d_errors, d_presync));
-    CHECK_CUDA(cudaStreamSynchronize(stream));
-
-    int h_errors = -1;
-    int h_presync = -1;
-    int h_overlap = copy_overlap_seen_to_host();
-    int h_secondary_started = copy_secondary_started_to_host();
-    std::vector<int> h_done(BLOCKS, 0);
-
-    CHECK_CUDA(cudaMemcpy(&h_errors, d_errors, sizeof(int),
-                          cudaMemcpyDeviceToHost));
-    CHECK_CUDA(cudaMemcpy(&h_presync, d_presync, sizeof(int),
-                          cudaMemcpyDeviceToHost));
-    CHECK_CUDA(cudaMemcpy(h_done.data(), d_done, BLOCKS * sizeof(int),
-                          cudaMemcpyDeviceToHost));
-
-    bool all_done = true;
-    for (int i = 0; i < BLOCKS; ++i) {
-        if (h_done[i] != 1) {
-            all_done = false;
-            break;
-        }
-    }
-
-    printf("[%s] pdl_attr=%d, secondary_started=%d, presync_counter=%d, "
-           "overlap_seen=%d, errors=%d, all_done=%s\n",
-           name, enable_pdl_attribute ? 1 : 0, h_secondary_started, h_presync,
-           h_overlap, h_errors, all_done ? "true" : "false");
-
-    CHECK_CUDA(cudaStreamDestroy(stream));
-    CHECK_CUDA(cudaFree(d_done));
-    CHECK_CUDA(cudaFree(d_buf));
-    CHECK_CUDA(cudaFree(d_errors));
-    CHECK_CUDA(cudaFree(d_presync));
-
-    // Hard correctness requirements:
-    //   1. dependent reads after cudaGridDependencySynchronize() must be correct
-    //   2. all primary blocks must eventually finish
-    if (h_errors != 0 || !all_done) {
-        fprintf(stderr, "[%s] FAILED: semantic correctness check failed\n",
-                name);
-        std::exit(2);
-    }
-
-    // Soft observations:
-    //   - explicit PDL cases may show overlap_seen=1, but this is
-    //     scheduling/resource dependent.
-    //   - no_attr_control is expected to have overlap_seen=0 under normal
-    //     stream serialization, but correctness should not depend on asserting
-    //     that in this portable test.
+__device__ __forceinline__ void burn_cycles(int iterations) {
+  volatile unsigned value = threadIdx.x + blockIdx.x;
+  for (int i = 0; i < iterations; ++i) {
+    value = value * 1664525u + 1013904223u;
+  }
 }
 
-int main() {
-    run_test("explicit_basic_memory", PrimaryKind::ExplicitMemory, true);
-    run_test("explicit_uneven_trigger", PrimaryKind::ExplicitUneven, true);
-    run_test("implicit_memory", PrimaryKind::ImplicitMemory, true);
-    run_test("no_attribute_control", PrimaryKind::ExplicitMemory, false);
+__device__ __forceinline__ void publish_results(Witness *witness) {
+  if (threadIdx.x == 0) {
+    witness->late[blockIdx.x] = late_value(blockIdx.x);
+    // This fence cannot protect an early secondary read: the write itself is
+    // delayed. It preserves the original targeted publication witness; done
+    // is written afterward and must also be visible when the dependency ends.
+    __threadfence();
+    witness->done[blockIdx.x] = 1;
+  }
+}
 
-    printf("PASS\n");
-    return 0;
+// Cases 1 and 4: every CTA signals, delays, and then publishes its result.
+__global__ void primary_trigger_then_publish(Witness *witness) {
+  if (threadIdx.x == 0) {
+    cudaTriggerProgrammaticLaunchCompletion();
+  }
+
+  burn_cycles(kDelayIterations);
+
+  publish_results(witness);
+}
+
+// Case 2: CTA 0 signals twice before CTA 1 is ready. The two signals must
+// contribute only one logical CTA arrival. CTA 1 observes secondary entry
+// before its trigger; the secondary also checks CTA 1's readiness before wait.
+__global__ void primary_uneven_triggers(Witness *witness) {
+  if (blockIdx.x == 0) {
+    if (threadIdx.x == 0) {
+      cudaTriggerProgrammaticLaunchCompletion();
+      cudaTriggerProgrammaticLaunchCompletion();
+    }
+  } else {
+    burn_cycles(kTriggerDelayIterations);
+    if (threadIdx.x == 0) {
+      if (atomicAdd(&witness->secondary_started, 0) != 0) {
+        atomicAdd(&witness->premature_entries, 1);
+      }
+      // Atomics make this scheduling witness visible independently of PDL's
+      // memory guarantee. Publication immediately precedes the delayed signal.
+      atomicExch(&witness->delayed_cta_ready, 1);
+      cudaTriggerProgrammaticLaunchCompletion();
+    }
+  }
+
+  burn_cycles(kDelayIterations);
+  publish_results(witness);
+}
+
+// Case 3: CTA 1 never signals and returns uniformly. CTA 0 signals but stays
+// alive, so failure to count CTA 1's exit cannot hide behind kernel completion.
+// On the prepared configuration CTAs occupy different SMs; both hardware CTA
+// slots can be zero, making logical grid CTA identity essential for counting.
+__global__ void primary_mixed_trigger_and_exit(Witness *witness) {
+  if (blockIdx.x == 1) {
+    if (threadIdx.x == 0) {
+      witness->late[blockIdx.x] = late_value(blockIdx.x);
+      witness->done[blockIdx.x] = 1;
+    }
+    return;
+  }
+
+  if (threadIdx.x == 0) {
+    cudaTriggerProgrammaticLaunchCompletion();
+  }
+  burn_cycles(kDelayIterations);
+  publish_results(witness);
+}
+
+__global__ void secondary_snapshot_then_wait(Witness *witness, bool skip_wait,
+                                             bool check_delayed_cta) {
+  const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (tid == 0) {
+    atomicExch(&witness->secondary_started, 1);
+    if (check_delayed_cta &&
+        atomicAdd(&witness->delayed_cta_ready, 0) != 1) {
+      atomicAdd(&witness->premature_entries, 1);
+    }
+  }
+
+  // Volatile ensures actual, separate loads on each side of the wait. These
+  // intentionally unsynchronized pre-wait snapshots are only diagnostics;
+  // primary results are consumed for correctness after the dependency wait.
+  const volatile int *late = witness->late;
+  const volatile int *done = witness->done;
+  if (tid < kPrimaryBlocks && late[tid] != late_value(tid)) {
+    atomicOr(&witness->stale_mask, 1u << tid);
+  }
+
+  if (!skip_wait) {
+    cudaGridDependencySynchronize();
+  }
+
+  // A real wait releases only after the primary completes and its global
+  // writes are visible.  All late values and completion witnesses are then
+  // required to be present.
+  if (tid < kPrimaryBlocks &&
+      (late[tid] != late_value(tid) || done[tid] != 1)) {
+    atomicAdd(&witness->errors, 1);
+  }
+}
+
+bool run_case(const TestCase &test, bool skip_wait) {
+  Witness *d_witness = nullptr;
+  cudaStream_t stream = nullptr;
+
+  CHECK_CUDA(cudaMalloc(&d_witness, sizeof(*d_witness)));
+  CHECK_CUDA(cudaMemset(d_witness, 0, sizeof(*d_witness)));
+  CHECK_CUDA(cudaStreamCreate(&stream));
+
+  switch (test.primary) {
+    case PrimaryKind::Explicit:
+      primary_trigger_then_publish<<<kPrimaryBlocks, kPrimaryThreads, 0,
+                                     stream>>>(d_witness);
+      break;
+    case PrimaryKind::Uneven:
+      primary_uneven_triggers<<<kPrimaryBlocks, kPrimaryThreads, 0, stream>>>(
+          d_witness);
+      break;
+    case PrimaryKind::MixedExit:
+      primary_mixed_trigger_and_exit<<<kPrimaryBlocks, kPrimaryThreads, 0,
+                                      stream>>>(d_witness);
+      break;
+  }
+  CHECK_CUDA(cudaGetLastError());
+
+  cudaLaunchAttribute attribute{};
+  attribute.id = cudaLaunchAttributeProgrammaticStreamSerialization;
+  attribute.val.programmaticStreamSerializationAllowed = 1;
+
+  cudaLaunchConfig_t config{};
+  config.gridDim = dim3(1);
+  config.blockDim = dim3(kSecondaryThreads);
+  config.stream = stream;
+  config.attrs = test.pdl_attribute ? &attribute : nullptr;
+  config.numAttrs = test.pdl_attribute ? 1 : 0;
+
+  CHECK_CUDA(cudaLaunchKernelEx(&config, secondary_snapshot_then_wait, d_witness,
+                               skip_wait, test.primary == PrimaryKind::Uneven));
+  CHECK_CUDA(cudaStreamSynchronize(stream));
+
+  Witness result{};
+  CHECK_CUDA(cudaMemcpy(&result, d_witness, sizeof(result),
+                       cudaMemcpyDeviceToHost));
+  CHECK_CUDA(cudaStreamDestroy(stream));
+  CHECK_CUDA(cudaFree(d_witness));
+
+  int stale_before_wait = 0;
+  for (int cta = 0; cta < kPrimaryBlocks; ++cta) {
+    if (result.stale_mask & (1u << cta)) {
+      ++stale_before_wait;
+    }
+  }
+  std::printf("[%s] pdl_attr=%d, skip_wait=%d, secondary_started=%d, "
+              "stale_before_wait=%d, stale_mask=0x%x, "
+              "premature_entries=%d, errors=%d\n",
+              test.name, test.pdl_attribute, skip_wait,
+              result.secondary_started, stale_before_wait, result.stale_mask,
+              result.premature_entries, result.errors);
+
+  bool passed = true;
+  if (result.secondary_started != 1 || result.errors != 0) {
+    std::fprintf(stderr, "[%s] FAILED: secondary must run and see every late "
+                         "value and completion flag after the wait\n",
+                 test.name);
+    passed = false;
+  }
+  if (test.pdl_attribute &&
+      (result.stale_mask == 0 ||
+       (result.stale_mask & test.required_stale_mask) !=
+           test.required_stale_mask)) {
+    std::fprintf(stderr, "[%s] FAILED: required pre-wait overlap was not "
+                         "observed (use a simulator config with spare SMs)\n",
+                 test.name);
+    passed = false;
+  }
+  if (!test.pdl_attribute && result.stale_mask != 0) {
+    std::fprintf(stderr, "[%s] FAILED: secondary read unfinished primary data "
+                         "without the PDL launch attribute\n", test.name);
+    passed = false;
+  }
+  if (test.primary == PrimaryKind::Uneven &&
+      (result.premature_entries != 0 || result.delayed_cta_ready != 1)) {
+    std::fprintf(stderr, "[%s] FAILED: secondary entered before the delayed "
+                         "CTA was ready to trigger\n", test.name);
+    passed = false;
+  }
+  return passed;
+}
+
+void usage(const char *program) {
+  std::fprintf(stderr, "Usage: %s [--case NAME] [--skip-wait]\n"
+                       "Cases: explicit_wait, all_cta_trigger, exit_arrival, "
+                       "no_attribute\n"
+                       "--skip-wait is a negative control, expected to fail "
+                       "the overlap cases.\n", program);
+}
+
+}  // namespace
+
+int main(int argc, char **argv) {
+  const char *selected_case = nullptr;
+  bool skip_wait = false;
+  for (int i = 1; i < argc; ++i) {
+    if (std::strcmp(argv[i], "--skip-wait") == 0) {
+      skip_wait = true;
+    } else if (std::strcmp(argv[i], "--case") == 0 && i + 1 < argc) {
+      selected_case = argv[++i];
+    } else {
+      usage(argv[0]);
+      return 1;
+    }
+  }
+
+  bool found = selected_case == nullptr;
+  for (const TestCase &test : kCases) {
+    if (selected_case && std::strcmp(selected_case, test.name) == 0) {
+      found = true;
+    }
+  }
+  if (!found) {
+    usage(argv[0]);
+    return 1;
+  }
+
+  bool passed = true;
+  for (const TestCase &test : kCases) {
+    if (!selected_case || std::strcmp(selected_case, test.name) == 0) {
+      if (!run_case(test, skip_wait)) {
+        passed = false;
+      }
+    }
+  }
+  if (!passed) {
+    return 2;
+  }
+
+  std::puts("PASS");
+  return 0;
 }
